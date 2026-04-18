@@ -1,37 +1,20 @@
-from dataclasses import dataclass, field
-from sys import stdout
+from dataclasses import dataclass
 from random import randint
 from msvcrt import getch
 from copy import deepcopy
 import time
-from colorama import init, Fore, Back, Style
+from colorama import init, Fore, Back
+from utils import (
+    getUserAction,
+    overwriteConsole,
+    defaultMutable,
+    resetStyleAfter,
+    rotateMatrixLeft,
+    rotateMatrixRight,
+)
 
 init(autoreset=True)
 
-
-def defaultMutable(value):
-    return field(default_factory=lambda: value)
-
-
-def overwriteConsole(message="\033[H\033[2J\033[3J"):
-    stdout.write(message)
-    stdout.flush()
-
-
-def inputToAction(inp):
-    if inp in CHAR_ACTIONS:
-        inp = CHAR_ACTIONS[inp]
-    elif inp in [b"\x00", b"\xe0"]:
-        inp = getch()
-        if inp in EXTENDED_CHAR_ACTIONS:
-            inp = EXTENDED_CHAR_ACTIONS[inp]
-    else:
-        inp = inp.decode()
-    return inp
-
-
-CHAR_ACTIONS = {b"\r": "ENTER", b" ": "ENTER"}
-EXTENDED_CHAR_ACTIONS = {b"H": "w", b"K": "a", b"P": "s", b"M": "d"}
 
 HIDE_CURSOR = "\033[?25l"
 
@@ -54,23 +37,7 @@ BORDER_CHARS = {
     },
 }
 TILE_CHARS = {"upper": {0: "┌─┐", 1: "▗▄▖"}, "lower": {0: "└─┘", 1: "▝▀▘"}}
-moves = {"w": [-1, 0], "a": [0, -1], "s": [1, 0], "d": [0, 1]}
-
-
-def resetStyleAfter(string):
-    return string + Style.RESET_ALL
-
-
-def rotateMatrixRight(m, iterations=1):
-    for _ in range(iterations):
-        m = list(map(list, zip(*m[::-1])))
-    return m
-
-
-def rotateMatrixLeft(m, iterations=1):
-    for _ in range(iterations):
-        m = list(map(list, zip(*m)))[::-1]
-    return m
+moves = {"UP": [-1, 0], "LEFT": [0, -1], "DOWN": [1, 0], "RIGHT": [0, 1]}
 
 
 @dataclass
@@ -193,4 +160,4 @@ board.generatePattern()
 while True:
     overwriteConsole()
     overwriteConsole(str(board))
-    board.player.interact(inputToAction(getch().lower()))
+    board.player.interact(getUserAction())
