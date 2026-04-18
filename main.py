@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from random import randint
-from msvcrt import getch
 from copy import deepcopy
 import time
 from colorama import init, Fore, Back
@@ -12,32 +11,9 @@ from utils import (
     rotateMatrixLeft,
     rotateMatrixRight,
 )
+from constants import HIDE_CURSOR, BORDER_CHARS, TILE_CHARS, MOVES
 
 init(autoreset=True)
-
-
-HIDE_CURSOR = "\033[?25l"
-
-BORDER_CHARS = {
-    "single": {
-        "topLeft": "┏",
-        "topRight": "┓",
-        "botLeft": "┗",
-        "botRight": "┛",
-        "horizontal": "━",
-        "vertical": "┃",
-    },
-    "double": {
-        "topLeft": "╔",
-        "topRight": "╗",
-        "botLeft": "╚",
-        "botRight": "╝",
-        "horizontal": "═",
-        "vertical": "║",
-    },
-}
-TILE_CHARS = {"upper": {0: "┌─┐", 1: "▗▄▖"}, "lower": {0: "└─┘", 1: "▝▀▘"}}
-moves = {"UP": [-1, 0], "LEFT": [0, -1], "DOWN": [1, 0], "RIGHT": [0, 1]}
 
 
 @dataclass
@@ -138,10 +114,10 @@ class Player:
             currentTile = tiles[sel[0]][sel[1]]
             tiles[sel[0]][sel[1]] = int(not currentTile)
             return
-        if action not in moves:
+        if action not in MOVES:
             return
-        nextIPos = sel[0] + moves[action][0]
-        nextJPos = sel[1] + moves[action][1]
+        nextIPos = sel[0] + MOVES[action][0]
+        nextJPos = sel[1] + MOVES[action][1]
         if (
             nextIPos < 0
             or nextJPos < 0
