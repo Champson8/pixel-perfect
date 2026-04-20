@@ -20,6 +20,14 @@ class Board:
         if self.allowInteract:
             self.player = Player(self)
         self.symmetryType = None  # 2 = two-way symmetry; 4 = four-way symmetry
+        self.tiles = self._intsToTiles(self.tiles)
+
+    def __getitem__(self, key: list | tuple):
+        if not isinstance(key, list | tuple):
+            raise TypeError(
+                "Index must be of type 'list' or 'tuple' with i, j coordinates."
+            )
+        return self.tiles[key[0]][key[1]]
 
     def __str__(self):
         border = BORDER_CHARS["double" if self.allowInteract else "single"]
