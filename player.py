@@ -12,12 +12,11 @@ if TYPE_CHECKING:
 class Player:
     board: Board
 
-    def interact(self, action):
-        tiles = self.board.tiles
+    def interact(self, action: str):
         sel = self.board.selectedPos
         if action == "ENTER":
-            currentTile = tiles[sel[0]][sel[1]]
-            tiles[sel[0]][sel[1]] = int(not currentTile)
+            currentTile = self.board[sel]
+            currentTile.flip()
             return
         if action not in MOVES:
             return

@@ -1,5 +1,6 @@
+from copy import deepcopy
 from dataclasses import dataclass
-from random import randint, choice
+from random import random, randint, choice
 from colorama import Back
 from player import Player
 from enums import InitialBoardState
@@ -45,9 +46,9 @@ class Board:
                 lines.append(
                     [
                         (
-                            self.styleTile(getters[k](tile), i, j)
+                            self.styleIfSelected(getters[k](tile.value), i, j)
                             if self.allowInteract
-                            else getters[k](tile)
+                            else getters[k](tile.value)
                         )
                         for j, tile in enumerate(row)
                     ]
@@ -62,6 +63,14 @@ class Board:
             + border["botRight"]
         )
         return "\n".join(frame)
+
+    def _intsToTiles(self, tiles: list[list[int]]) -> list[list[_Tile]]:
+        return [[_Tile(num) for num in row] for row in tiles]
+
+    def styleIfSelected(self, string: str, posI: int, posJ: int) -> str:
+        if [posI, posJ] == self.selectedPos:
+            string = Back.BLUE + string
+        return resetStyleAfter(string)
 
     def generateBase(self, initialState: InitialBoardState = InitialBoardState.PATTERN):
         if initialState not in InitialBoardState:
@@ -86,7 +95,7 @@ class Board:
 
                 for i in range(self.size):
                     if i < halfSize:
-                        newBoard += [
+                        newTiles += [
                             basePattern[i]
                             + (
                                 rotate(basePattern)[i]
@@ -95,15 +104,22 @@ class Board:
                             )
                         ]
                     else:
-                        newBoard += [[0] * self.size]
+                        newTiles += [[0] * self.size]
 
-                lowerHalf = rotate(newBoard, 2)
+                lowerHalf = rotate(newTiles, 2)
                 for i in range(halfSize, self.size):
-                    newBoard[i] = lowerHalf[i]
+                    newTiles[i] = lowerHalf[i]
 
-        self.tiles = newBoard
+        self.tiles = self._intsToTiles(newTiles)
 
-    def styleTile(self, string, posI, posJ):
-        if [posI, posJ] == self.selectedPos:
-            string = Back.BLUE + string
-        return resetStyleAfter(string)
+
+@dataclass
+class _Tile:
+    value: int
+
+    def __post_init__(self):
+        if self.value not in [0, 1]:
+            raise ValueError("Value must be either a 0 or 1.")
+
+    def flip(self):
+        self.value = 1 - self.value
