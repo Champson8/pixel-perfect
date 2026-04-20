@@ -4,7 +4,7 @@ from msvcrt import getch
 from colorama import Style
 
 
-def getUserAction():
+def getUserAction() -> str:
     inp = getch().lower()
     if inp in [b"\x00", b"\xe0"]:
         inp = getch()
@@ -33,17 +33,17 @@ def defaultMutable(value):
     return field(default_factory=lambda: value)
 
 
-def resetStyleAfter(string):
+def resetStyleAfter(string: str) -> str:
     return string + Style.RESET_ALL
 
 
-def rotateMatrixRight(m, iterations=1):
+def rotateMatrixRight(m: list[list], iterations: int = 1) -> list[list]:
     for _ in range(iterations):
         m = list(map(list, zip(*m[::-1])))
     return m
 
 
-def rotateMatrixLeft(m, iterations=1):
+def rotateMatrixLeft(m: list[list], iterations: int = 1) -> list[list]:
     for _ in range(iterations):
         m = list(map(list, zip(*m)))[::-1]
     return m
