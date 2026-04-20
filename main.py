@@ -2,14 +2,14 @@ import time
 from colorama import init
 from board import Board
 from utils import getUserAction, overwriteConsole
-from constants import HIDE_CURSOR, TILE_CHARS, MOVES
+from constants import HIDE_CURSOR
 
 init(autoreset=True)
 
 
 overwriteConsole(HIDE_CURSOR)
 
-board = Board(8, allowInteract=True)
+board = Board(6, allowInteract=True)
 board.generatePattern()
 
 while True:

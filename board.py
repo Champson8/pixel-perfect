@@ -29,25 +29,22 @@ class Board:
         for i, row in enumerate(self.tiles):
             getUpper = lambda tile: TILE_CHARS["upper"][tile]
             getLower = lambda tile: TILE_CHARS["lower"][tile]
-            line1 = [
-                (
-                    self.styleTile(getUpper(tile), i, j)
-                    if self.allowInteract
-                    else getUpper(tile)
+            getters = [getUpper, getLower]
+            lines = []
+            for k in range(len(getters)):
+                lines.append(
+                    [
+                        (
+                            self.styleTile(getters[k](tile), i, j)
+                            if self.allowInteract
+                            else getters[k](tile)
+                        )
+                        for j, tile in enumerate(row)
+                    ]
                 )
-                for j, tile in enumerate(row)
-            ]
-            line2 = [
-                (
-                    self.styleTile(getLower(tile), i, j)
-                    if self.allowInteract
-                    else getLower(tile)
-                )
-                for j, tile in enumerate(row)
-            ]
             frame += [
                 f"{border['vertical']} {' '.join(line)} {border['vertical']}"
-                for line in [line1, line2]
+                for line in lines
             ]
         frame.append(
             border["botLeft"]
