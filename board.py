@@ -1,7 +1,8 @@
 from dataclasses import dataclass
-from random import randint
+from random import randint, choice
 from colorama import Back
 from player import Player
+from enums import InitialBoardState
 from utils import defaultMutable, rotateMatrixLeft, rotateMatrixRight, resetStyleAfter
 from constants import BORDER_CHARS, TILE_CHARS
 
@@ -58,29 +59,40 @@ class Board:
             [randint(0, 1) for _ in range(self.size)] for _ in range(self.size)
         ]
 
-    def generatePattern(self):
-        halfSize = self.size // 2
-        basePattern = [
-            [randint(0, 1) for _ in range(halfSize)] for _ in range(halfSize)
-        ]
+    def generatePattern(self, state: InitialBoardState = InitialBoardState.PATTERN):
+        if state not in InitialBoardState:
+            state = InitialBoardState.PATTERN
 
-        newBoard = lowerHalf = list()
-        twoWay = bool(randint(0, 1))
-        fourWay = not twoWay
-        rotate = rotateMatrixRight if randint(0, 1) == 1 else rotateMatrixLeft
-
-        for i in range(self.size):
-            if i < halfSize:
-                newBoard += [
-                    basePattern[i]
-                    + (rotate(basePattern)[i] if fourWay else basePattern[i])
+        match state:
+            case InitialBoardState.BLANK:
+                newBoard = [[0] * self.size for _ in range(self.size)]
+            case InitialBoardState.RANDOM:
+                newBoard = [
+                    [randint(0, 1) for _ in range(self.size)] for _ in range(self.size)
                 ]
-            else:
-                newBoard += [[0] * self.size]
+            case InitialBoardState.PATTERN:
+                halfSize = self.size // 2
+                basePattern = [
+                    [randint(0, 1) for _ in range(halfSize)] for _ in range(halfSize)
+                ]
 
-        lowerHalf = rotate(newBoard, 2)
-        for i in range(halfSize, self.size):
-            newBoard[i] = lowerHalf[i]
+                newBoard = lowerHalf = list()
+                twoWay = bool(randint(0, 1))
+                fourWay = not twoWay
+                rotate = choice([rotateMatrixLeft, rotateMatrixRight])
+
+                for i in range(self.size):
+                    if i < halfSize:
+                        newBoard += [
+                            basePattern[i]
+                            + (rotate(basePattern)[i] if fourWay else basePattern[i])
+                        ]
+                    else:
+                        newBoard += [[0] * self.size]
+
+                lowerHalf = rotate(newBoard, 2)
+                for i in range(halfSize, self.size):
+                    newBoard[i] = lowerHalf[i]
 
         self.tiles = newBoard
 
