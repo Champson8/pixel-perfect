@@ -19,6 +19,7 @@ class Board:
             raise ValueError("Size must be an even number.")
         if self.allowInteract:
             self.player = Player(self)
+        self.symmetryType = None  # 2 = two-way symmetry; 4 = four-way symmetry
 
     def __str__(self):
         border = BORDER_CHARS["double" if self.allowInteract else "single"]
@@ -54,20 +55,16 @@ class Board:
         )
         return "\n".join(frame)
 
-    def randomize(self):
-        self.tiles = [
-            [randint(0, 1) for _ in range(self.size)] for _ in range(self.size)
-        ]
+    def generateBase(self, initialState: InitialBoardState = InitialBoardState.PATTERN):
+        if initialState not in InitialBoardState:
+            initialState = InitialBoardState.PATTERN
 
-    def generatePattern(self, state: InitialBoardState = InitialBoardState.PATTERN):
-        if state not in InitialBoardState:
-            state = InitialBoardState.PATTERN
-
-        match state:
+        self.symmetryType = choice([2, 4])
+        match initialState:
             case InitialBoardState.BLANK:
-                newBoard = [[0] * self.size for _ in range(self.size)]
+                newTiles = [[0] * self.size for _ in range(self.size)]
             case InitialBoardState.RANDOM:
-                newBoard = [
+                newTiles = [
                     [randint(0, 1) for _ in range(self.size)] for _ in range(self.size)
                 ]
             case InitialBoardState.PATTERN:
@@ -76,16 +73,18 @@ class Board:
                     [randint(0, 1) for _ in range(halfSize)] for _ in range(halfSize)
                 ]
 
-                newBoard = lowerHalf = list()
-                twoWay = bool(randint(0, 1))
-                fourWay = not twoWay
+                newTiles, lowerHalf = list(), list()
                 rotate = choice([rotateMatrixLeft, rotateMatrixRight])
 
                 for i in range(self.size):
                     if i < halfSize:
                         newBoard += [
                             basePattern[i]
-                            + (rotate(basePattern)[i] if fourWay else basePattern[i])
+                            + (
+                                rotate(basePattern)[i]
+                                if self.symmetryType == 4
+                                else basePattern[i]
+                            )
                         ]
                     else:
                         newBoard += [[0] * self.size]

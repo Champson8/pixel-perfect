@@ -11,7 +11,7 @@ init(autoreset=True)
 overwriteConsole(HIDE_CURSOR)
 
 board = Board(6, allowInteract=True)
-board.generatePattern()
+board.generateBase()
 
 while True:
     overwriteConsole()
