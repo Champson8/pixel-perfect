@@ -108,6 +108,70 @@ class Board:
 
         self.tiles = self._intsToTiles(newTiles)
 
+    def mutated(
+        self,
+        mutationCount: int = 0,
+        spreadFactor: float = 0.0,
+        symmetryWeight: float = 1.0,
+    ) -> Board:
+        """Creates and returns a new Board instance based on the original instance's tileset.
+
+        Args:
+            mutationCount (int, optional): Number of tiles to flip. Defaults to 0.
+            spreadFactor (float, optional): Chance to flip random tiles opposed to adjacent ones. Defaults to 0.0.
+            symmetryWeight (float, optional): Chance to respect board's symmetry type. Defaults to 1.0.
+
+        Raises:
+            ValueError: If mutationCount or spreadFactor or symmetryWeight < 0.
+            ValueError: If mutationCount > number of tiles.
+            ValueError: If spreadFactor or symmetryWeight > 1.
+
+        Returns:
+            Board: Instance with mutated tiles.
+        """
+        if mutationCount < 0 or spreadFactor < 0 or symmetryWeight < 0:
+            raise ValueError(
+                "Mutation count, spread factor and symmetry weight cannot be less than 0."
+            )
+        if mutationCount > self.size**2:
+            raise ValueError("Mutation count cannot be higher than number of tiles.")
+        if spreadFactor > 1 or symmetryWeight > 1:
+            raise ValueError(
+                "Spread factor and symmetry weight cannot be higher than 1."
+            )
+
+        newBoard = Board(self.size, deepcopy(self.tiles))
+
+        randomCoords = lambda: (randint(0, self.size - 1), randint(0, self.size - 1))
+        firstMutationDone = False
+        lastCoords = None
+        while mutationCount > 0:
+            startCoords = randomCoords()
+            if firstMutationDone:
+                if random() > spreadFactor:
+                    axisIndex = randint(0, 1)
+                    increment = choice([1, -1])
+                    if (lastCoords[axisIndex] == 0 and increment == -1) or (
+                        lastCoords[axisIndex] == self.size - 1 and increment == 1
+                    ):
+                        increment = 0 - increment
+                    if axisIndex:
+                        startCoords = (lastCoords[0], lastCoords[1] + increment)
+                    else:
+                        startCoords = (lastCoords[0] + increment, lastCoords[1])
+            else:
+                firstMutationDone = True
+            if random() < symmetryWeight:
+                tilesToFlip = self._getSymmetricCoords(startCoords[0], startCoords[1])
+            else:
+                tilesToFlip = [startCoords]
+            for position in tilesToFlip:
+                newBoard[position].flip()
+            lastCoords = startCoords
+            mutationCount -= 1
+
+        return newBoard
+
 
 @dataclass
 class _Tile:
