@@ -21,7 +21,7 @@ class Board:
         if self.allowInteract:
             self.player = Player(self)
         self.symmetryType = None  # 2 = two-way symmetry; 4 = four-way symmetry
-        self.tiles = self._intsToTiles(self.tiles)
+        self.tiles: list[list[_Tile]] = self._intsToTiles(self.tiles)
 
     def __getitem__(self, key: list | tuple):
         if not isinstance(key, list | tuple):
@@ -46,7 +46,7 @@ class Board:
                 lines.append(
                     [
                         (
-                            self.styleIfSelected(getters[k](tile.value), i, j)
+                            self._styleIfSelected(getters[k](tile.value), i, j)
                             if self.allowInteract
                             else getters[k](tile.value)
                         )
@@ -64,10 +64,22 @@ class Board:
         )
         return "\n".join(frame)
 
-    def _intsToTiles(self, tiles: list[list[int]]) -> list[list[_Tile]]:
-        return [[_Tile(num) for num in row] for row in tiles]
+    def _intsToTiles(self, tiles: list[list[int | _Tile]]) -> list[list[_Tile]]:
+        return [[_Tile(x) if isinstance(x, int) else x for x in row] for row in tiles]
 
-    def styleIfSelected(self, string: str, posI: int, posJ: int) -> str:
+    def _getSymmetricCoords(self, i: int, j: int) -> list[tuple]:
+        coords = [(i, j)]
+        if self.symmetryType == 2:
+            coords += [(-(i + 1), -(j + 1))]
+        else:
+            currI, currJ = i, j
+            for _ in range(3):
+                newI, newJ = -(currJ + 1), currI
+                coords.append((newI, newJ))
+                currI, currJ = newI, newJ
+        return coords
+
+    def _styleIfSelected(self, string: str, posI: int, posJ: int) -> str:
         if [posI, posJ] == self.selectedPos:
             string = Back.BLUE + string
         return resetStyleAfter(string)
@@ -86,29 +98,13 @@ class Board:
                 ]
             case InitialBoardState.PATTERN:
                 halfSize = self.size // 2
-                basePattern = [
-                    [randint(0, 1) for _ in range(halfSize)] for _ in range(halfSize)
-                ]
+                newTiles = [[0] * self.size for _ in range(self.size)]
 
-                newTiles, lowerHalf = list(), list()
-                rotate = choice([rotateMatrixLeft, rotateMatrixRight])
-
-                for i in range(self.size):
-                    if i < halfSize:
-                        newTiles += [
-                            basePattern[i]
-                            + (
-                                rotate(basePattern)[i]
-                                if self.symmetryType == 4
-                                else basePattern[i]
-                            )
-                        ]
-                    else:
-                        newTiles += [[0] * self.size]
-
-                lowerHalf = rotate(newTiles, 2)
-                for i in range(halfSize, self.size):
-                    newTiles[i] = lowerHalf[i]
+                for i in range(halfSize):
+                    for j in range(halfSize):
+                        if randint(0, 1):
+                            for symI, symJ in self._getSymmetricCoords(i, j):
+                                newTiles[symI][symJ] = 1
 
         self.tiles = self._intsToTiles(newTiles)
 
