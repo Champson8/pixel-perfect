@@ -18,7 +18,7 @@ class GameManager:
         while True:
             match self.state:
                 case GameState.TITLE:
-                    pass
+                    self.handleTitleScreen()
                 case GameState.ABOUT:
                     pass
                 case GameState.SETTINGS:
@@ -31,6 +31,34 @@ class GameManager:
                     pass
                 case GameState.QUIT:
                     break
+
+    def handleTitleScreen(self):
+        options = ["Jugar", "Leaderboard", "Información", "Salir"]
+        numOptions = len(options)
+        selected = 0
+
+        while True:
+            ui.drawMenu("Pixel Perfect", options, selected)
+
+            action = getUserAction()
+
+            match action:
+                case "UP":
+                    selected = (selected - 1) % numOptions
+                case "DOWN":
+                    selected = (selected + 1) % numOptions
+                case "ENTER":
+                    break
+
+        match selected:
+            case 0:
+                pass
+            case 1:
+                pass
+            case 2:
+                self.state = GameState.ABOUT
+            case 3:
+                self.state = GameState.QUIT
 
 
 @dataclass

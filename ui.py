@@ -42,6 +42,28 @@ def overwriteConsole(message="\033[H\033[2J\033[3J"):
     stdout.flush()
 
 
+def drawTitle(title: str):
+    padding = 40 if len(title) % 2 == 0 else 41
+    frame = [
+        "_" * padding,
+        f" {title.upper()} ".center(padding, "="),
+        "‾" * padding,
+    ]
+    _write(frame)
+
+
+def drawMenu(title: str, options: list | tuple, selectedIdx: int):
+    overwriteConsole()
+    drawTitle(title)
+
+    for i, option in enumerate(options):
+        _write(
+            f" > [ {Fore.LIGHTBLUE_EX + option + Style.RESET_ALL} ] < "
+            if i == selectedIdx
+            else f"     {option}"
+        )
+
+
 def drawBoard(board: Board):
     border = _BORDER_CHARS["double" if board.allowInteract else "single"]
     frame = [
