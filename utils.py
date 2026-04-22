@@ -35,15 +35,3 @@ def defaultMutable(value):
 
 def resetStyleAfter(string: str) -> str:
     return string + Style.RESET_ALL
-
-
-def rotateMatrixRight(m: list[list], iterations: int = 1) -> list[list]:
-    for _ in range(iterations):
-        m = list(map(list, zip(*m[::-1])))
-    return m
-
-
-def rotateMatrixLeft(m: list[list], iterations: int = 1) -> list[list]:
-    for _ in range(iterations):
-        m = list(map(list, zip(*m)))[::-1]
-    return m

@@ -4,7 +4,7 @@ from random import random, randint, choice
 from colorama import Back
 from player import Player
 from enums import InitialBoardState
-from utils import defaultMutable, rotateMatrixLeft, rotateMatrixRight, resetStyleAfter
+from utils import defaultMutable, resetStyleAfter
 from constants import BORDER_CHARS, TILE_CHARS
 
 
