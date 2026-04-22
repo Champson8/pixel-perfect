@@ -2,6 +2,8 @@ from dataclasses import dataclass
 import ui
 from board import Board
 from enums import GameState
+from utils import getUserAction
+from constants import HIDE_CURSOR
 
 
 class GameManager:
@@ -11,6 +13,8 @@ class GameManager:
         self.stats = None
 
     def run(self):
+        ui.overwriteConsole(HIDE_CURSOR)
+
         while True:
             match self.state:
                 case GameState.TITLE:

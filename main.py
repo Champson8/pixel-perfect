@@ -1,22 +1,8 @@
-from colorama import init
-import ui
-from board import Board
-from utils import getUserAction
-from constants import HIDE_CURSOR
+from game import GameManager
 
 
 def main():
-    init(autoreset=True)
-
-    ui.overwriteConsole(HIDE_CURSOR)
-
-    board = Board(4, allowInteract=True)
-    board.generateBase()
-
-    while True:
-        ui.overwriteConsole()
-        ui.drawBoard(board)
-        board.player.interact(getUserAction())
+    GameManager().run()
 
 
 if __name__ == "__main__":
