@@ -1,13 +1,14 @@
 from dataclasses import dataclass
+import ui
 from board import Board
 from enums import GameState
 
 
-@dataclass
 class GameManager:
-    state: GameState = GameState.TITLE
-    settings: None
-    stats: None
+    def __init__(self):
+        self.state: GameState = GameState.TITLE
+        self.settings = None
+        self.stats = None
 
     def run(self):
         while True:
@@ -22,6 +23,10 @@ class GameManager:
                     pass
                 case GameState.OVER:
                     pass
+                case GameState.LEADERBOARD:
+                    pass
+                case GameState.QUIT:
+                    break
 
 
 @dataclass

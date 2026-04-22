@@ -7,6 +7,8 @@ class GameState(StrEnum):
     SETTINGS = auto()
     PLAYING = auto()
     OVER = auto()
+    LEADERBOARD = auto()
+    QUIT = auto()
 
 
 class InitialBoardState(StrEnum):
