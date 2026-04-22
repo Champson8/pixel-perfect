@@ -26,12 +26,23 @@ _BORDER_CHARS = {
     },
 }
 _TILE_CHARS = {"upper": {0: "┌─┐", 1: "▗▄▖"}, "lower": {0: "└─┘", 1: "▝▀▘"}}
+_EXIT_CONTROLS = "\n* ESC para regresar"
+
+
+def _write(lines: str | list | tuple, newline: bool = True):
+    if isinstance(lines, str):
+        lines = [lines]
+    stdout.write("\n".join(lines))
+    if newline:
+        stdout.write("\n")
+
 
 def overwriteConsole(message="\033[H\033[2J\033[3J"):
-    stdout.write(message)
+    _write(message, False)
     stdout.flush()
 
 
+def drawBoard(board: Board):
     border = _BORDER_CHARS["double" if board.allowInteract else "single"]
     frame = [
         border["topLeft"]
@@ -65,4 +76,4 @@ def overwriteConsole(message="\033[H\033[2J\033[3J"):
         + border["horizontal"] * (board.size * 4 + 1)
         + border["botRight"]
     )
-    stdout.write("\n".join(frame))
+    _write(frame)
