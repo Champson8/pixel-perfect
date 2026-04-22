@@ -1,28 +1,45 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from sys import stdout
-from colorama import Style, Back
-from constants import BORDER_CHARS, TILE_CHARS
-
+from colorama import Style, Back, Fore
 
 if TYPE_CHECKING:
     from board import Board
 
+
+_BORDER_CHARS = {
+    "single": {
+        "topLeft": "┏",
+        "topRight": "┓",
+        "botLeft": "┗",
+        "botRight": "┛",
+        "horizontal": "━",
+        "vertical": "┃",
+    },
+    "double": {
+        "topLeft": "╔",
+        "topRight": "╗",
+        "botLeft": "╚",
+        "botRight": "╝",
+        "horizontal": "═",
+        "vertical": "║",
+    },
+}
+_TILE_CHARS = {"upper": {0: "┌─┐", 1: "▗▄▖"}, "lower": {0: "└─┘", 1: "▝▀▘"}}
 
 def overwriteConsole(message="\033[H\033[2J\033[3J"):
     stdout.write(message)
     stdout.flush()
 
 
-def drawBoard(board: Board) -> str:
-    border = BORDER_CHARS["double" if board.allowInteract else "single"]
+    border = _BORDER_CHARS["double" if board.allowInteract else "single"]
     frame = [
         border["topLeft"]
         + border["horizontal"] * (board.size * 4 + 1)
         + border["topRight"]
     ]
-    getUpper = lambda tile: TILE_CHARS["upper"][tile]
-    getLower = lambda tile: TILE_CHARS["lower"][tile]
+    getUpper = lambda tile: _TILE_CHARS["upper"][tile]
+    getLower = lambda tile: _TILE_CHARS["lower"][tile]
     getters = [getUpper, getLower]
     for i, row in enumerate(board.tiles):
         lines = []
