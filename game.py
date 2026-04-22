@@ -20,7 +20,7 @@ class GameManager:
                 case GameState.TITLE:
                     self.handleTitleScreen()
                 case GameState.ABOUT:
-                    pass
+                    self.handleAbout()
                 case GameState.SETTINGS:
                     pass
                 case GameState.PLAYING:
@@ -59,6 +59,14 @@ class GameManager:
                 self.state = GameState.ABOUT
             case 3:
                 self.state = GameState.QUIT
+
+    def handleAbout(self):
+        ui.drawAbout()
+        while True:
+            action = getUserAction()
+            if action == "ESCAPE":
+                break
+        self.state = GameState.TITLE
 
 
 @dataclass

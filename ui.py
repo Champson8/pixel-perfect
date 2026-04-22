@@ -99,3 +99,23 @@ def drawBoard(board: Board):
         + border["botRight"]
     )
     _write(frame)
+
+
+def drawAbout():
+    overwriteConsole()
+    drawTitle("información")
+    frame = [
+        "Pixel Perfect - Inspirado por Mario Party 6",
+        "",
+        "Cómo jugar:",
+        " - Copia el patrón mostrado al tablero",
+        " - Utiliza W/A/S/D o ↑/←/↓/→ para navegar el tablero",
+        " - Presiona ENTER o ESPACIO para cambiar el color de la celda",
+        "",
+        "Desarrolladores:",
+        " - Baena Zamorano Leyla Elizabeth",
+        " - Herrera Armenta Emmanuel",
+        " - Sotelo Núñez Edgardo",
+    ]
+    _write(frame)
+    _write(_EXIT_CONTROLS)
