@@ -65,7 +65,7 @@ def drawMenu(title: str, options: list | tuple, selectedIdx: int):
 
 
 def drawBoard(board: Board):
-    border = _BORDER_CHARS["double" if board.allowInteract else "single"]
+    border = _BORDER_CHARS["double" if board.isInteractable else "single"]
     frame = [
         border["topLeft"]
         + border["horizontal"] * (board.size * 4 + 1)
@@ -83,7 +83,7 @@ def drawBoard(board: Board):
                         (Back.BLUE if [i, j] == board.selectedPos else "")
                         + getters[k](tile.value)
                         + Style.RESET_ALL
-                        if board.allowInteract
+                        if board.isInteractable
                         else getters[k](tile.value)
                     )
                     for j, tile in enumerate(row)

@@ -1,7 +1,6 @@
 from copy import deepcopy
 from dataclasses import dataclass
 from random import random, randint, choice
-from player import Player
 from enums import InitialBoardState
 from utils import defaultMutable
 
@@ -10,14 +9,12 @@ from utils import defaultMutable
 class Board:
     size: int
     tiles: list[list[int]] = defaultMutable([[]])
-    allowInteract: bool = False
+    isInteractable: bool = False
     selectedPos: list[int] = defaultMutable([0, 0])
 
     def __post_init__(self):
         if self.size % 2 == 1:
             raise ValueError("Size must be an even number.")
-        if self.allowInteract:
-            self.player = Player(self)
         self.symmetryType = None  # 2 = two-way symmetry; 4 = four-way symmetry
         self.tiles: list[list[_Tile]] = self._intsToTiles(self.tiles)
 
