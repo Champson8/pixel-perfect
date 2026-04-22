@@ -16,8 +16,7 @@ class Player:
     def interact(self, action: str):
         sel = self.board.selectedPos
         if action == "ENTER":
-            currentTile = self.board[sel]
-            currentTile.flip()
+            self.board.flipSelectedTile()
             return
         if action not in _MOVES:
             return
@@ -30,4 +29,4 @@ class Player:
             or nextJPos + 1 > self.board.size
         ):
             return
-        self.board.selectedPos = [nextIPos, nextJPos]
+        self.board.moveSelection(nextIPos, nextJPos)

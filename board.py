@@ -21,7 +21,7 @@ class Board:
         self.symmetryType = None  # 2 = two-way symmetry; 4 = four-way symmetry
         self.tiles: list[list[_Tile]] = self._intsToTiles(self.tiles)
 
-    def __getitem__(self, key: list | tuple):
+    def __getitem__(self, key: list | tuple) -> _Tile:
         if not isinstance(key, list | tuple):
             raise TypeError(
                 "Index must be of type 'list' or 'tuple' with i, j coordinates."
@@ -42,6 +42,12 @@ class Board:
                 coords.append((newI, newJ))
                 currI, currJ = newI, newJ
         return coords
+
+    def flipSelectedTile(self):
+        self[self.selectedPos].flip()
+
+    def moveSelection(self, newI: int, newJ: int):
+        self.selectedPos = [newI, newJ]
 
     def generateBase(self, initialState: InitialBoardState = InitialBoardState.PATTERN):
         if initialState not in InitialBoardState:
