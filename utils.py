@@ -1,7 +1,6 @@
 from dataclasses import field
 from sys import stdout
 from msvcrt import getch
-from colorama import Style
 
 
 def getUserAction() -> str:
@@ -22,16 +21,9 @@ def getUserAction() -> str:
             return "ENTER"
         case b"\x1b":
             return "ESCAPE"
-
-
-def overwriteConsole(message="\033[H\033[2J\033[3J"):
-    stdout.write(message)
-    stdout.flush()
+        case _:
+            return inp
 
 
 def defaultMutable(value):
     return field(default_factory=lambda: value)
-
-
-def resetStyleAfter(string: str) -> str:
-    return string + Style.RESET_ALL

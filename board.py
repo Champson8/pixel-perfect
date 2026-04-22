@@ -1,11 +1,9 @@
 from copy import deepcopy
 from dataclasses import dataclass
 from random import random, randint, choice
-from colorama import Back
 from player import Player
 from enums import InitialBoardState
-from utils import defaultMutable, resetStyleAfter
-from constants import BORDER_CHARS, TILE_CHARS
+from utils import defaultMutable
 
 
 @dataclass
@@ -30,40 +28,6 @@ class Board:
             )
         return self.tiles[key[0]][key[1]]
 
-    def __str__(self):
-        border = BORDER_CHARS["double" if self.allowInteract else "single"]
-        frame = [
-            border["topLeft"]
-            + border["horizontal"] * (self.size * 4 + 1)
-            + border["topRight"]
-        ]
-        for i, row in enumerate(self.tiles):
-            getUpper = lambda tile: TILE_CHARS["upper"][tile]
-            getLower = lambda tile: TILE_CHARS["lower"][tile]
-            getters = [getUpper, getLower]
-            lines = []
-            for k in range(len(getters)):
-                lines.append(
-                    [
-                        (
-                            self._styleIfSelected(getters[k](tile.value), i, j)
-                            if self.allowInteract
-                            else getters[k](tile.value)
-                        )
-                        for j, tile in enumerate(row)
-                    ]
-                )
-            frame += [
-                f"{border['vertical']} {' '.join(line)} {border['vertical']}"
-                for line in lines
-            ]
-        frame.append(
-            border["botLeft"]
-            + border["horizontal"] * (self.size * 4 + 1)
-            + border["botRight"]
-        )
-        return "\n".join(frame)
-
     def _intsToTiles(self, tiles: list[list[int | _Tile]]) -> list[list[_Tile]]:
         return [[_Tile(x) if isinstance(x, int) else x for x in row] for row in tiles]
 
@@ -78,11 +42,6 @@ class Board:
                 coords.append((newI, newJ))
                 currI, currJ = newI, newJ
         return coords
-
-    def _styleIfSelected(self, string: str, posI: int, posJ: int) -> str:
-        if [posI, posJ] == self.selectedPos:
-            string = Back.BLUE + string
-        return resetStyleAfter(string)
 
     def generateBase(self, initialState: InitialBoardState = InitialBoardState.PATTERN):
         if initialState not in InitialBoardState:
