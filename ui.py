@@ -90,8 +90,31 @@ def drawAbout():
     _write(_EXIT_CONTROLS)
 
 
-def drawSettings():
-    pass
+def drawSettings(options: list | tuple, selectedIdx: int):
+    overwriteConsole()
+    drawTitle("configuración")
+
+    frame = []
+    for i, option in enumerate(options):
+        match option["type"]:
+            case "action":
+                valueDisplay = ""
+                frame.append("")
+            case "int":
+                valueDisplay = str(option["value"])
+            case "bool":
+                valueDisplay = "ON" if option["value"] else "OFF"
+            case "time":
+                valueDisplay = "OFF" if option["value"] == 0 else f"{option['value']}s"
+        optionText = f"{option["label"].ljust(30)} {valueDisplay}"
+        frame.append(
+            f" > [ {Fore.LIGHTBLUE_EX + optionText + Style.RESET_ALL} ] < "
+            if i == selectedIdx
+            else f"     {optionText}"
+        )
+
+    _write(frame)
+    _write(_EXIT_CONTROLS)
 
 
 def drawBoard(board: Board):
