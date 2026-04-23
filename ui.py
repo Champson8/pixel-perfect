@@ -3,6 +3,7 @@ from math import floor
 from sys import stdout
 from typing import TYPE_CHECKING
 from colorama import Style, Back, Fore
+from constants import HIDE_CURSOR
 
 if TYPE_CHECKING:
     from board import Board
@@ -41,6 +42,10 @@ def _write(lines: str | list | tuple, newline: bool = True):
 def overwriteConsole():
     _write("\033[H\033[2J\033[3J", False)
     stdout.flush()
+
+
+def hideCursor():
+    _write(HIDE_CURSOR)
 
 
 def drawTitle(title: str) -> int:

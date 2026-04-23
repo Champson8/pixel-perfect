@@ -14,7 +14,7 @@ class GameManager:
         self.stats = None
 
     def run(self):
-        ui.overwriteConsole(HIDE_CURSOR)
+        ui.hideCursor()
 
         while True:
             if self.state == GameState.QUIT:
