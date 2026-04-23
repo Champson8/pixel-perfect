@@ -1,6 +1,7 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from math import floor
 from sys import stdout
+from typing import TYPE_CHECKING
 from colorama import Style, Back, Fore
 
 if TYPE_CHECKING:
@@ -37,12 +38,12 @@ def _write(lines: str | list | tuple, newline: bool = True):
         stdout.write("\n")
 
 
-def overwriteConsole(message="\033[H\033[2J\033[3J"):
-    _write(message, False)
+def overwriteConsole():
+    _write("\033[H\033[2J\033[3J", False)
     stdout.flush()
 
 
-def drawTitle(title: str):
+def drawTitle(title: str) -> int:
     padding = 44 if len(title) % 2 == 0 else 45
     frame = [
         "_" * padding,
@@ -50,11 +51,12 @@ def drawTitle(title: str):
         "‾" * padding,
     ]
     _write(frame)
+    return padding
 
 
-def drawMenu(title: str, options: list | tuple, selectedIdx: int):
+def drawMenu(title: str, options: list | tuple, selectedIdx: int) -> int:
     overwriteConsole()
-    drawTitle(title)
+    width = drawTitle(title)
 
     frame = []
     for i, option in enumerate(options):
@@ -66,11 +68,12 @@ def drawMenu(title: str, options: list | tuple, selectedIdx: int):
 
     _write(frame)
     _write(_EXIT_CONTROLS)
+    return width
 
 
-def drawAbout():
+def drawAbout() -> int:
     overwriteConsole()
-    drawTitle("información")
+    width = drawTitle("información")
 
     frame = [
         "Pixel Perfect - Inspirado por Mario Party 6",
@@ -88,11 +91,12 @@ def drawAbout():
 
     _write(frame)
     _write(_EXIT_CONTROLS)
+    return width
 
 
-def drawSettings(options: list | tuple, selectedIdx: int):
+def drawSettings(options: list | tuple, selectedIdx: int) -> int:
     overwriteConsole()
-    drawTitle("configuración")
+    width = drawTitle("configuración")
 
     frame = []
     for i, option in enumerate(options):
@@ -115,6 +119,7 @@ def drawSettings(options: list | tuple, selectedIdx: int):
 
     _write(frame)
     _write(_EXIT_CONTROLS + ", A/S o ←/→ para configurar opción")
+    return width
 
 
 def drawBoard(board: Board):
