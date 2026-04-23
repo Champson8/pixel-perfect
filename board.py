@@ -25,8 +25,19 @@ class Board:
             )
         return self.tiles[key[0]][key[1]]
 
+    def __eq__(self, other: Board):
+        if not isinstance(other, Board):
+            raise TypeError("Both items in comparison must be of type 'Board'.")
+        return self._tilesToInts(self.tiles) == other._tilesToInts(other.tiles)
+
     def _intsToTiles(self, tiles: list[list[int | _Tile]]) -> list[list[_Tile]]:
         return [[_Tile(x) if isinstance(x, int) else x for x in row] for row in tiles]
+
+    def _tilesToInts(self, tiles: list[list[int | _Tile]]) -> list[list[int]]:
+        return [
+            [tile.value if isinstance(tile, _Tile) else tile for tile in row]
+            for row in tiles
+        ]
 
     def _getSymmetricCoords(self, i: int, j: int) -> list[tuple]:
         coords = [(i, j)]
