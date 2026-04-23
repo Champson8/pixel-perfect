@@ -54,7 +54,7 @@ class GameManager:
                     self.state = GameState.QUIT
                     return
 
-        states = [GameState.PLAYING, GameState.LEADERBOARD, GameState.ABOUT]
+        states = [GameState.SETTINGS, GameState.LEADERBOARD, GameState.ABOUT]
         self.state = states[selected]
 
     def handleAbout(self):
@@ -66,7 +66,60 @@ class GameManager:
         self.state = GameState.TITLE
 
     def handleSettings(self):
-        pass
+        options = self.settings._generateOptionsList()
+        numOptions = len(options)
+        selected = 0
+
+        while True:
+            ui.drawSettings(options, selected)
+
+            currentOption = options[selected]
+            action = getUserAction()
+
+            match action:
+                case "UP":
+                    selected = (selected - 1) % numOptions
+                case "DOWN":
+                    selected = (selected + 1) % numOptions
+                case "LEFT" | "RIGHT":
+                    if currentOption["type"] in ["int", "time"]:
+                        step = currentOption["step"]
+                        currentOption["value"] = (
+                            max(currentOption["value"] - step, currentOption["min"])
+                            if action == "LEFT"
+                            else min(
+                                currentOption["value"] + step, currentOption["max"]
+                            )
+                        )
+                    elif currentOption["type"] == "bool":
+                        currentOption["value"] = action == "RIGHT"
+                    self.enforceSettingDependencies(options, currentOption)
+                case "ENTER":
+                    if currentOption["id"] == "start":
+                        self.saveSettings(options)
+                        self.state = GameState.PLAYING
+                        return
+                case "ESCAPE":
+                    self.state = GameState.TITLE
+                    return
+
+    def enforceSettingDependencies(self, options: list | tuple, changedOption: dict):
+        match changedOption["id"]:
+            case "timeLimit":
+                if changedOption["value"] == 0:
+                    for option in options:
+                        if option["id"] == "hideTargetAfter" and option["value"] > 0:
+                            option["value"] = 0
+            case "hideTargetAfter":
+                if changedOption["value"] > 0:
+                    for option in options:
+                        if option["id"] == "timeLimit" and option["value"] == 0:
+                            option["value"] = 30
+
+    def saveSettings(self, options: list | tuple):
+        for option in options:
+            if option["type"] != "action":
+                setattr(self.settings, option["id"], option["value"])
 
 
 @dataclass

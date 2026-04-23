@@ -114,7 +114,7 @@ def drawSettings(options: list | tuple, selectedIdx: int):
         )
 
     _write(frame)
-    _write(_EXIT_CONTROLS)
+    _write(_EXIT_CONTROLS + ", A/S o ←/→ para configurar opción")
 
 
 def drawBoard(board: Board):
