@@ -34,7 +34,7 @@ class GameSettings:
         metadata={
             "label": "Tamaño del Tablero",
             "type": "int",
-            "min": 2,
+            "min": 4,
             "max": 10,
             "step": 2,
         },

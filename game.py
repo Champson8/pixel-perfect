@@ -17,23 +17,19 @@ class GameManager:
         ui.overwriteConsole(HIDE_CURSOR)
 
         while True:
-            match self.state:
-                case GameState.TITLE:
-                    self.handleTitleScreen()
-                case GameState.ABOUT:
-                    self.handleAbout()
-                case GameState.SETTINGS:
-                    self.handleSettings()
-                case GameState.PLAYING:
-                    pass
-                case GameState.OVER:
-                    pass
-                case GameState.LEADERBOARD:
-                    pass
-                case GameState.QUIT:
-                    break
+            if self.state == GameState.QUIT:
+                break
+            else:
+                {
+                    GameState.TITLE: self.handleTitle,
+                    GameState.ABOUT: self.handleAbout,
+                    GameState.SETTINGS: self.handleSettings,
+                    GameState.PLAYING: self.startGame,
+                    GameState.OVER: lambda: None,
+                    GameState.LEADERBOARD: lambda: None,
+                }.get(self.state)()
 
-    def handleTitleScreen(self):
+    def handleTitle(self):
         options = ["Jugar", "Leaderboard", "Información"]
         numOptions = len(options)
         selected = 0
@@ -120,6 +116,9 @@ class GameManager:
         for option in options:
             if option["type"] != "action":
                 setattr(self.settings, option["id"], option["value"])
+
+    def startGame(self):
+        pass
 
 
 @dataclass
