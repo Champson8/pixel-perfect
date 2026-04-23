@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 
 
 @dataclass
@@ -78,3 +78,11 @@ class GameSettings:
     autoRandomFlip: bool = field(
         default=False, metadata={"label": "Cambiar Celdas Aleatorias", "type": "bool"}
     )
+
+    def _generateOptionsList(self) -> list:
+        options = []
+        for f in fields(self):
+            item = {"id": f.name, "value": getattr(self, f.name), **f.metadata}
+            options.append(item)
+        options.append({"id": "start", "label": "Iniciar Juego", "type": "action"})
+        return options
