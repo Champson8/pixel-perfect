@@ -79,9 +79,15 @@ class Board:
         """Creates and returns a new Board instance based on the original instance's tileset.
 
         Args:
-            mutationCount (int, optional): Number of tiles to flip. Defaults to 0.
-            spreadFactor (float, optional): Chance to flip random tiles opposed to adjacent ones. Defaults to 0.0.
-            symmetryWeight (float, optional): Chance to respect board's symmetry type. Defaults to 1.0.
+            mutationCount (int, optional):
+                Number of tiles to flip.
+                Defaults to 0.
+            spreadFactor (float, optional):
+                Chance to flip random tiles opposed to adjacent ones.
+                Defaults to 0.0.
+            symmetryWeight (float, optional):
+                Chance to respect board's symmetry type.
+                Defaults to 1.0.
 
         Raises:
             ValueError: If mutationCount or spreadFactor or symmetryWeight < 0.

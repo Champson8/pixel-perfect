@@ -26,7 +26,7 @@ _BORDER_CHARS = {
     },
 }
 _TILE_CHARS = {"upper": {0: "┌─┐", 1: "▗▄▖"}, "lower": {0: "└─┘", 1: "▝▀▘"}}
-_EXIT_CONTROLS = "\n* ESC para regresar"
+_EXIT_CONTROLS = "\n* ESC para regresar/salir"
 
 
 def _write(lines: str | list | tuple, newline: bool = True):
@@ -62,6 +62,32 @@ def drawMenu(title: str, options: list | tuple, selectedIdx: int):
             if i == selectedIdx
             else f"     {option}"
         )
+
+    _write(_EXIT_CONTROLS)
+
+
+def drawAbout():
+    overwriteConsole()
+    drawTitle("información")
+    frame = [
+        "Pixel Perfect - Inspirado por Mario Party 6",
+        "",
+        "Cómo jugar:",
+        " - Copia el patrón mostrado al tablero",
+        " - Utiliza W/A/S/D o ↑/←/↓/→ para navegar el tablero",
+        " - Presiona ENTER o ESPACIO para cambiar el color de la celda",
+        "",
+        "Desarrolladores:",
+        " - Baena Zamorano Leyla Elizabeth",
+        " - Herrera Armenta Emmanuel",
+        " - Sotelo Núñez Edgardo",
+    ]
+    _write(frame)
+    _write(_EXIT_CONTROLS)
+
+
+def drawSettings():
+    pass
 
 
 def drawBoard(board: Board):
@@ -99,23 +125,3 @@ def drawBoard(board: Board):
         + border["botRight"]
     )
     _write(frame)
-
-
-def drawAbout():
-    overwriteConsole()
-    drawTitle("información")
-    frame = [
-        "Pixel Perfect - Inspirado por Mario Party 6",
-        "",
-        "Cómo jugar:",
-        " - Copia el patrón mostrado al tablero",
-        " - Utiliza W/A/S/D o ↑/←/↓/→ para navegar el tablero",
-        " - Presiona ENTER o ESPACIO para cambiar el color de la celda",
-        "",
-        "Desarrolladores:",
-        " - Baena Zamorano Leyla Elizabeth",
-        " - Herrera Armenta Emmanuel",
-        " - Sotelo Núñez Edgardo",
-    ]
-    _write(frame)
-    _write(_EXIT_CONTROLS)

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import ui
 from board import Board
+from data import GameSettings
 from enums import GameState
 from utils import getUserAction
 from constants import HIDE_CURSOR
@@ -9,7 +10,7 @@ from constants import HIDE_CURSOR
 class GameManager:
     def __init__(self):
         self.state: GameState = GameState.TITLE
-        self.settings = None
+        self.settings = GameSettings()
         self.stats = None
 
     def run(self):
@@ -22,7 +23,7 @@ class GameManager:
                 case GameState.ABOUT:
                     self.handleAbout()
                 case GameState.SETTINGS:
-                    pass
+                    self.handleSettings()
                 case GameState.PLAYING:
                     pass
                 case GameState.OVER:
@@ -33,7 +34,7 @@ class GameManager:
                     break
 
     def handleTitleScreen(self):
-        options = ["Jugar", "Leaderboard", "Información", "Salir"]
+        options = ["Jugar", "Leaderboard", "Información"]
         numOptions = len(options)
         selected = 0
 
@@ -49,16 +50,12 @@ class GameManager:
                     selected = (selected + 1) % numOptions
                 case "ENTER":
                     break
+                case "ESCAPE":
+                    self.state = GameState.QUIT
+                    return
 
-        match selected:
-            case 0:
-                pass
-            case 1:
-                pass
-            case 2:
-                self.state = GameState.ABOUT
-            case 3:
-                self.state = GameState.QUIT
+        states = [GameState.PLAYING, GameState.LEADERBOARD, GameState.ABOUT]
+        self.state = states[selected]
 
     def handleAbout(self):
         ui.drawAbout()
@@ -67,6 +64,9 @@ class GameManager:
             if action == "ESCAPE":
                 break
         self.state = GameState.TITLE
+
+    def handleSettings(self):
+        pass
 
 
 @dataclass
