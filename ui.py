@@ -43,7 +43,7 @@ def overwriteConsole(message="\033[H\033[2J\033[3J"):
 
 
 def drawTitle(title: str):
-    padding = 40 if len(title) % 2 == 0 else 41
+    padding = 44 if len(title) % 2 == 0 else 45
     frame = [
         "_" * padding,
         f" {title.upper()} ".center(padding, "="),
@@ -56,19 +56,22 @@ def drawMenu(title: str, options: list | tuple, selectedIdx: int):
     overwriteConsole()
     drawTitle(title)
 
+    frame = []
     for i, option in enumerate(options):
-        _write(
+        frame.append(
             f" > [ {Fore.LIGHTBLUE_EX + option + Style.RESET_ALL} ] < "
             if i == selectedIdx
             else f"     {option}"
         )
 
+    _write(frame)
     _write(_EXIT_CONTROLS)
 
 
 def drawAbout():
     overwriteConsole()
     drawTitle("información")
+
     frame = [
         "Pixel Perfect - Inspirado por Mario Party 6",
         "",
@@ -82,6 +85,7 @@ def drawAbout():
         " - Herrera Armenta Emmanuel",
         " - Sotelo Núñez Edgardo",
     ]
+
     _write(frame)
     _write(_EXIT_CONTROLS)
 
@@ -92,14 +96,16 @@ def drawSettings():
 
 def drawBoard(board: Board):
     border = _BORDER_CHARS["double" if board.isInteractable else "single"]
+    getUpper = lambda tile: _TILE_CHARS["upper"][tile]
+    getLower = lambda tile: _TILE_CHARS["lower"][tile]
+    getters = [getUpper, getLower]
+
     frame = [
         border["topLeft"]
         + border["horizontal"] * (board.size * 4 + 1)
         + border["topRight"]
     ]
-    getUpper = lambda tile: _TILE_CHARS["upper"][tile]
-    getLower = lambda tile: _TILE_CHARS["lower"][tile]
-    getters = [getUpper, getLower]
+
     for i, row in enumerate(board.tiles):
         lines = []
         for k in range(len(getters)):
@@ -119,9 +125,11 @@ def drawBoard(board: Board):
             f"{border['vertical']} {' '.join(line)} {border['vertical']}"
             for line in lines
         ]
+
     frame.append(
         border["botLeft"]
         + border["horizontal"] * (board.size * 4 + 1)
         + border["botRight"]
     )
+
     _write(frame)

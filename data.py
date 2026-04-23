@@ -40,7 +40,7 @@ class GameSettings:
         },
     )
     totalRounds: int = field(
-        default=10,
+        default=5,
         metadata={
             "label": "Número de Rondas",
             "type": "int",
