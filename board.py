@@ -10,11 +10,11 @@ class Board:
     size: int
     tiles: list[list[int]] = defaultMutable([[]])
     isInteractable: bool = False
-    selectedPos: list[int] = defaultMutable([0, 0])
 
     def __post_init__(self):
         if self.size % 2 == 1:
             raise ValueError("Size must be an even number.")
+        self.selectedPos = [0, 0]
         self.symmetryType = None  # 2 = two-way symmetry; 4 = four-way symmetry
         self.tiles: list[list[_Tile]] = self._intsToTiles(self.tiles)
 
@@ -72,6 +72,7 @@ class Board:
 
     def mutated(
         self,
+        willBeInteractable: bool = False,
         mutationCount: int = 0,
         spreadFactor: float = 0.0,
         symmetryWeight: float = 1.0,
@@ -108,7 +109,9 @@ class Board:
                 "Spread factor and symmetry weight cannot be higher than 1."
             )
 
-        newBoard = Board(self.size, deepcopy(self.tiles))
+        newBoard = Board(
+            self.size, deepcopy(self.tiles), isInteractable=willBeInteractable
+        )
 
         randomCoords = lambda: (randint(0, self.size - 1), randint(0, self.size - 1))
         firstMutationDone = False
