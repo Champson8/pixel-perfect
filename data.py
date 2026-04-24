@@ -79,10 +79,17 @@ class GameSettings:
         default=False, metadata={"label": "Cambiar Celdas Aleatorias", "type": "bool"}
     )
 
-    def _generateOptionsList(self) -> list:
+    def _generateOptionsList(self) -> list[dict]:
         options = []
         for f in fields(self):
             item = {"id": f.name, "value": getattr(self, f.name), **f.metadata}
             options.append(item)
         options.append({"id": "start", "label": "Iniciar Juego", "type": "action"})
         return options
+
+
+@dataclass
+class StatsTracker:
+    timeElapsed: float = 0
+    totalMoves: int = 0
+    totalMistakes: int = 0

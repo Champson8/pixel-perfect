@@ -5,7 +5,7 @@ from time import perf_counter, sleep
 import ui
 from board import Board
 from player import Player
-from data import GameSettings
+from data import GameSettings, StatsTracker
 from enums import GameState, InitialBoardState
 from utils import getLatestAction
 
@@ -14,7 +14,7 @@ class GameManager:
     def __init__(self):
         self.state: GameState = GameState.TITLE
         self.settings = GameSettings()
-        self.stats = None
+        self.stats = StatsTracker()
 
     def run(self):
         ui.hideCursor()
@@ -122,7 +122,11 @@ class GameManager:
 
     def startGame(self):
         for i in range(1, self.settings.totalRounds + 1):
-            Round(i, self.settings).start()
+            round = Round(i, self.settings)
+            round.start()
+            self.stats.timeElapsed += round.timeElapsed
+            self.stats.totalMoves += round.moves
+            self.stats.totalMistakes += round.mistakes
 
 
 @dataclass
