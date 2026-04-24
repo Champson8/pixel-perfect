@@ -89,6 +89,8 @@ def _getBoardDrawing(board: Board, centerToWidth: int = 0) -> str:
     centeredFrame = []
     for line in frame:
         totalWidth = centerToWidth - 1
+        if totalWidth % 2 == 0:
+            totalWidth += 1
         if Back.BLUE in line:
             totalWidth += len(Back.BLUE)
         if Style.RESET_ALL in line:
