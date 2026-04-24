@@ -50,6 +50,53 @@ def _drawTitle(title: str) -> int:
     return padding
 
 
+def _getBoardDrawing(board: Board, centerToWidth: int = 0) -> str:
+    border = _BORDER_CHARS["double" if board.isInteractable else "single"]
+    getUpper = lambda tile: _TILE_CHARS["upper"][tile]
+    getLower = lambda tile: _TILE_CHARS["lower"][tile]
+    getters = [getUpper, getLower]
+
+    frame = [
+        border["topLeft"]
+        + border["horizontal"] * (board.size * 4 + 1)
+        + border["topRight"]
+    ]
+
+    for i, row in enumerate(board.tiles):
+        lines = []
+        for k in range(len(getters)):
+            lines.append(
+                [
+                    (
+                        Back.BLUE + getters[k](tile.value) + Style.RESET_ALL
+                        if board.isInteractable and [i, j] == board.selectedPos
+                        else getters[k](tile.value)
+                    )
+                    for j, tile in enumerate(row)
+                ]
+            )
+        frame += [
+            f"{border['vertical']} {' '.join(line)} {border['vertical']}"
+            for line in lines
+        ]
+
+    frame.append(
+        border["botLeft"]
+        + border["horizontal"] * (board.size * 4 + 1)
+        + border["botRight"]
+    )
+
+    centeredFrame = []
+    for line in frame:
+        totalWidth = centerToWidth - 1
+        if Back.BLUE in line:
+            totalWidth += len(Back.BLUE)
+        if Style.RESET_ALL in line:
+            totalWidth += len(Style.RESET_ALL)
+        centeredFrame.append(line.center(totalWidth))
+
+    return "\n".join(centeredFrame) + "\n"
+
 
 def overwriteConsole():
     _write("\033[H\033[2J\033[3J", False)
@@ -128,42 +175,8 @@ def drawSettings(options: list | tuple, selectedIdx: int) -> int:
     return width
 
 
-def drawBoard(board: Board):
-    border = _BORDER_CHARS["double" if board.isInteractable else "single"]
-    getUpper = lambda tile: _TILE_CHARS["upper"][tile]
-    getLower = lambda tile: _TILE_CHARS["lower"][tile]
-    getters = [getUpper, getLower]
-
-    frame = [
-        border["topLeft"]
-        + border["horizontal"] * (board.size * 4 + 1)
-        + border["topRight"]
-    ]
-
-    for i, row in enumerate(board.tiles):
-        lines = []
-        for k in range(len(getters)):
-            lines.append(
-                [
-                    (
-                        (Back.BLUE if [i, j] == board.selectedPos else "")
-                        + getters[k](tile.value)
-                        + Style.RESET_ALL
-                        if board.isInteractable
-                        else getters[k](tile.value)
-                    )
-                    for j, tile in enumerate(row)
-                ]
-            )
-        frame += [
-            f"{border['vertical']} {' '.join(line)} {border['vertical']}"
-            for line in lines
-        ]
-
-    frame.append(
-        border["botLeft"]
-        + border["horizontal"] * (board.size * 4 + 1)
-        + border["botRight"]
-    )
-
-    _write(frame)
+def drawBoards(*boards: Board, separator: str = "", centerToWidth: int = 0):
+    frame = []
+    for board in boards:
+        frame.append(_getBoardDrawing(board, centerToWidth))
+    _write(f"{separator.center(centerToWidth if separator else 0, "⋅")}\n".join(frame))
