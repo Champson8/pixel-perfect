@@ -124,33 +124,39 @@ class Board:
             self.size, deepcopy(self.tiles), isInteractable=willBeInteractable
         )
 
-        randomCoords = lambda: (randint(0, self.size - 1), randint(0, self.size - 1))
-        firstMutationDone = False
-        lastCoords = None
-        while mutationCount > 0:
-            startCoords = randomCoords()
-            if firstMutationDone:
-                if random() > spreadFactor:
-                    axisIndex = randint(0, 1)
-                    increment = choice([1, -1])
-                    if (lastCoords[axisIndex] == 0 and increment == -1) or (
-                        lastCoords[axisIndex] == self.size - 1 and increment == 1
-                    ):
-                        increment = 0 - increment
-                    if axisIndex:
-                        startCoords = (lastCoords[0], lastCoords[1] + increment)
-                    else:
-                        startCoords = (lastCoords[0] + increment, lastCoords[1])
-            else:
-                firstMutationDone = True
-            if random() < symmetryWeight:
-                tilesToFlip = self._getSymmetricCoords(startCoords[0], startCoords[1])
-            else:
-                tilesToFlip = [startCoords]
-            for position in tilesToFlip:
-                newBoard[position].flip()
-            lastCoords = startCoords
-            mutationCount -= 1
+        while newBoard == self:
+            randomCoords = lambda: (
+                randint(0, self.size - 1),
+                randint(0, self.size - 1),
+            )
+            firstMutationDone = False
+            lastCoords = None
+            while mutationCount > 0:
+                startCoords = randomCoords()
+                if firstMutationDone:
+                    if random() > spreadFactor:
+                        axisIndex = randint(0, 1)
+                        increment = choice([1, -1])
+                        if (lastCoords[axisIndex] == 0 and increment == -1) or (
+                            lastCoords[axisIndex] == self.size - 1 and increment == 1
+                        ):
+                            increment = 0 - increment
+                        if axisIndex:
+                            startCoords = (lastCoords[0], lastCoords[1] + increment)
+                        else:
+                            startCoords = (lastCoords[0] + increment, lastCoords[1])
+                else:
+                    firstMutationDone = True
+                if random() < symmetryWeight:
+                    tilesToFlip = self._getSymmetricCoords(
+                        startCoords[0], startCoords[1]
+                    )
+                else:
+                    tilesToFlip = [startCoords]
+                for position in tilesToFlip:
+                    newBoard[position].flip()
+                lastCoords = startCoords
+                mutationCount -= 1
 
         return newBoard
 
