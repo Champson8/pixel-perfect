@@ -1,5 +1,5 @@
 from __future__ import annotations
-from math import floor
+from math import ceil
 from sys import stdout
 from typing import TYPE_CHECKING
 from colorama import Style, Back, Fore
@@ -31,7 +31,7 @@ _TILE_CHARS = {"upper": {0: "┌─┐", 1: "▗▄▖"}, "lower": {0: "└─�
 _EXIT_CONTROLS = "\n* ESC para regresar/salir"
 
 
-def _write(lines: str | list | tuple, newline: bool = True):
+def _write(lines: str | list[str] | tuple[str], newline: bool = True):
     if isinstance(lines, str):
         lines = [lines]
     stdout.write("\n".join(lines))
@@ -109,7 +109,7 @@ def hideCursor():
     _write(_HIDE_CURSOR)
 
 
-def drawMenu(title: str, options: list | tuple, selectedIdx: int) -> int:
+def drawMenu(title: str, options: list[str] | tuple[str], selectedIdx: int) -> int:
     clearConsole()
     width = _drawTitle(title)
 
@@ -149,7 +149,7 @@ def drawAbout() -> int:
     return width
 
 
-def drawSettings(options: list | tuple, selectedIdx: int) -> int:
+def drawSettings(options: list[dict] | tuple[dict], selectedIdx: int) -> int:
     clearConsole()
     width = _drawTitle("configuración")
 
@@ -177,12 +177,21 @@ def drawSettings(options: list | tuple, selectedIdx: int) -> int:
     return width
 
 
-def drawRoundHUD(roundNumber: int, time: int | float) -> int:
+def drawRoundHUD(roundNumber: int, time: int | float = -1) -> int:
     clearConsole()
     width = _drawTitle(f"ronda #{roundNumber}")
     if time >= 0:
-        _write(f"> {floor(time)}s <".center(width) + "\n")
+        _write(f"> {ceil(time)}s <".center(width) + "\n")
     return width
+
+
+def drawRoundSummary(stats: dict[str, float], centerToWidth: int):
+    frame = []
+    for key, val in stats.items():
+        keyDisplay = (key + ":").ljust(20)
+        valDisplay = str(round(val, 2)).ljust(4)
+        frame.append(f"{keyDisplay} {valDisplay}".center(centerToWidth))
+    _write(frame)
 
 
 def drawBoards(*boards: Board, separator: str = "", centerToWidth: int = 0):

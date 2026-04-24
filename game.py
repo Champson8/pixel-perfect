@@ -222,6 +222,11 @@ class Round:
         )
 
     def _showRoundOver(self):
+        roundStats = {
+            "Tiempo": self.timeElapsed,
+            "Movimientos": self.moves,
+            "Errores": self.mistakes,
+        }
         for i in range(5):
             ui.clearConsole()
             if i % 2 == 0:
@@ -232,6 +237,10 @@ class Round:
                 self._drawRound()
             sleep(0.5)
         sleep(0.5)
+        ui.clearConsole()
+        width = ui.drawRoundHUD(self.roundNumber)
+        ui.drawRoundSummary(roundStats, width)
+        sleep(3)
 
     def start(self):
         self._generateBoards()
