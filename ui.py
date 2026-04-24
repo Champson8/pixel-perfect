@@ -3,12 +3,12 @@ from math import floor
 from sys import stdout
 from typing import TYPE_CHECKING
 from colorama import Style, Back, Fore
-from constants import HIDE_CURSOR
 
 if TYPE_CHECKING:
     from board import Board
 
 
+_HIDE_CURSOR = "\033[?25l"
 _BORDER_CHARS = {
     "single": {
         "topLeft": "┏",
@@ -39,29 +39,30 @@ def _write(lines: str | list | tuple, newline: bool = True):
         stdout.write("\n")
 
 
+def _drawTitle(title: str) -> int:
+    padding = 44 if len(title) % 2 == 0 else 45
+    frame = [
+        "▁" * padding,
+        f" {title.upper()} ".center(padding, "═"),
+        "▔" * padding,
+    ]
+    _write(frame)
+    return padding
+
+
+
 def overwriteConsole():
     _write("\033[H\033[2J\033[3J", False)
     stdout.flush()
 
 
 def hideCursor():
-    _write(HIDE_CURSOR)
-
-
-def drawTitle(title: str) -> int:
-    padding = 44 if len(title) % 2 == 0 else 45
-    frame = [
-        "_" * padding,
-        f" {title.upper()} ".center(padding, "="),
-        "‾" * padding,
-    ]
-    _write(frame)
-    return padding
+    _write(_HIDE_CURSOR)
 
 
 def drawMenu(title: str, options: list | tuple, selectedIdx: int) -> int:
     overwriteConsole()
-    width = drawTitle(title)
+    width = _drawTitle(title)
 
     frame = []
     for i, option in enumerate(options):
@@ -78,7 +79,7 @@ def drawMenu(title: str, options: list | tuple, selectedIdx: int) -> int:
 
 def drawAbout() -> int:
     overwriteConsole()
-    width = drawTitle("información")
+    width = _drawTitle("información")
 
     frame = [
         "Pixel Perfect - Inspirado por Mario Party 6",
@@ -101,7 +102,7 @@ def drawAbout() -> int:
 
 def drawSettings(options: list | tuple, selectedIdx: int) -> int:
     overwriteConsole()
-    width = drawTitle("configuración")
+    width = _drawTitle("configuración")
 
     frame = []
     for i, option in enumerate(options):
