@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from random import randint
+from time import perf_counter, sleep
 import ui
 from board import Board
 from player import Player
@@ -119,7 +120,8 @@ class GameManager:
                 setattr(self.settings, option["id"], option["value"])
 
     def startGame(self):
-        pass
+        for i in range(1, self.settings.totalRounds + 1):
+            Round(i, self.settings).start()
 
 
 @dataclass
@@ -135,6 +137,8 @@ class Round:
         self.timeElapsed: int = 0
         self.mistakes: int = 0
         self.moves: int = 0
+        self.isOver: bool = False
+        self.won: bool = False
 
     def _setBoardConfig(self):
         difficulty = (self.roundNumber - 1) / (self.settings.totalRounds - 1)
@@ -188,6 +192,72 @@ class Round:
             self.boardConfig["symmetryWeight"],
         )
 
+    def _handleInputOutcome(self, outcome: dict | None) -> bool:
+        if outcome is not None:
+            if outcome["moved"]:
+                self.moves += 1
+                return True
+            elif outcome["flipped"]:
+                selectedPos = self.playerBoard.selectedPos
+                if self.playerBoard[selectedPos] != self.targetBoard[selectedPos]:
+                    self.mistakes += 1
+                return True
+        return False
+
+    def _checkWin(self) -> bool:
+        return self.playerBoard == self.targetBoard
+
+    def _drawRound(self, timeLeft: float = -1, boardSeparator: str = ""):
+        width = ui.drawRoundHUD(self.roundNumber, timeLeft)
+        ui.drawBoards(
+            self.targetBoard,
+            self.playerBoard,
+            separator=boardSeparator,
+            centerToWidth=width,
+        )
+
+    def _handleRoundOver(self):
+        for i in range(5):
+            ui.clearConsole()
+            if i % 2 == 0:
+                self._drawRound(
+                    boardSeparator=" M A T C H " if self.won else " N O   M A T C H "
+                )
+            else:
+                self._drawRound()
+            sleep(0.5)
+        sleep(0.5)
+
     def start(self):
         self._generateBoards()
         self.player = Player(self.playerBoard)
+        startTime = lastTimer = perf_counter()
+
+        self._drawRound(self.settings.timeLimit if self.settings.timeLimit else -1)
+
+        while not self.isOver:
+            needsRedraw = False
+
+            inputOutcome = self.player.handleInput()
+            needsRedraw = self._handleInputOutcome(inputOutcome)
+            self.won = self._checkWin()
+
+            currentTime = perf_counter()
+
+            if self.settings.timeLimit and (currentTime - lastTimer >= 0.1):
+                lastTimer = currentTime
+                needsRedraw = True
+
+            if needsRedraw:
+                elapsed = currentTime - startTime
+                timeLeft = max(0, self.settings.timeLimit - elapsed)
+
+                self._drawRound(timeLeft if self.settings.timeLimit else -1)
+
+                if self.won or self.settings.timeLimit and timeLeft <= 0:
+                    self.isOver = True
+
+        endTime = perf_counter()
+        self.timeElapsed = endTime - startTime
+
+        self._handleRoundOver()
