@@ -123,7 +123,14 @@ class GameManager:
 
 @dataclass
 class Round:
-    targetBoard: Board
-    playerBoard: Board
-    mistakes: int = 0
-    timeElapsed: int = 0
+    roundNumber: int
+    settings: GameSettings
+
+    def __post_init__(self):
+        self.targetBoard: Board = None
+        self.playerBoard: Board = None
+        self.player: Player = None
+        self.tierConfig: dict = {}
+        self.timeElapsed: int = 0
+        self.mistakes: int = 0
+        self.moves: int = 0
