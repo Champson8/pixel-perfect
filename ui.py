@@ -175,6 +175,14 @@ def drawSettings(options: list | tuple, selectedIdx: int) -> int:
     return width
 
 
+def drawRoundHUD(roundNumber: int, time: int | float) -> int:
+    overwriteConsole()
+    width = _drawTitle(f"ronda #{roundNumber}")
+    if time >= 0:
+        _write(f"> {floor(time)}s <".center(width) + "\n")
+    return width
+
+
 def drawBoards(*boards: Board, separator: str = "", centerToWidth: int = 0):
     frame = []
     for board in boards:
