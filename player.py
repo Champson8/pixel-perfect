@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from dataclasses import dataclass
-from utils import getUserAction
+from utils import getLatestAction
 
 if TYPE_CHECKING:
     from board import Board
@@ -17,7 +17,7 @@ class Player:
     def handleInput(self) -> dict | None:
         outcome = {"moved": False, "flipped": False}
         sel = self.linkedBoard.selectedPos
-        action = getUserAction()
+        action = getLatestAction()
 
         if action == "ENTER":
             self.linkedBoard.flipSelectedTile()

@@ -1,9 +1,13 @@
 from dataclasses import field
-from sys import stdout
 from msvcrt import getch
+from queue import Queue
+from threading import Thread
 
 
-def getUserAction() -> str:
+actionQueue = Queue()
+
+
+def _getUserAction() -> str:
     inp = getch().lower()
     if inp in [b"\x00", b"\xe0"]:
         inp = getch()
@@ -23,6 +27,19 @@ def getUserAction() -> str:
             return "ESCAPE"
         case _:
             return inp
+
+
+def _globalActionListener():
+    while True:
+        action = _getUserAction()
+        actionQueue.put(action)
+
+
+Thread(target=_globalActionListener, daemon=True).start()
+
+
+def getLatestAction() -> str:
+    return actionQueue.get()
 
 
 def defaultMutable(value):

@@ -5,7 +5,7 @@ from board import Board
 from player import Player
 from data import GameSettings
 from enums import GameState, InitialBoardState
-from utils import getUserAction
+from utils import getLatestAction
 
 
 class GameManager:
@@ -38,7 +38,7 @@ class GameManager:
         while True:
             ui.drawMenu("Pixel Perfect", options, selected)
 
-            action = getUserAction()
+            action = getLatestAction()
 
             match action:
                 case "UP":
@@ -57,7 +57,7 @@ class GameManager:
     def handleAbout(self):
         ui.drawAbout()
         while True:
-            action = getUserAction()
+            action = getLatestAction()
             if action == "ESCAPE":
                 break
         self.state = GameState.TITLE
@@ -71,7 +71,7 @@ class GameManager:
             ui.drawSettings(options, selected)
 
             currentOption = options[selected]
-            action = getUserAction()
+            action = getLatestAction()
 
             match action:
                 case "UP":
