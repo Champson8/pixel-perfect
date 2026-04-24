@@ -38,8 +38,8 @@ def _globalActionListener():
 Thread(target=_globalActionListener, daemon=True).start()
 
 
-def getLatestAction() -> str:
-    return actionQueue.get()
+def getLatestAction(timeout: float | None = None) -> str:
+    return actionQueue.get(timeout=timeout)
 
 
 def defaultMutable(value):

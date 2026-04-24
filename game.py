@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from queue import Empty
 from random import randint
 from time import perf_counter, sleep
 import ui
@@ -216,7 +217,7 @@ class Round:
             centerToWidth=width,
         )
 
-    def _handleRoundOver(self):
+    def _showRoundOver(self):
         for i in range(5):
             ui.clearConsole()
             if i % 2 == 0:
@@ -238,9 +239,12 @@ class Round:
         while not self.isOver:
             needsRedraw = False
 
-            inputOutcome = self.player.handleInput()
-            needsRedraw = self._handleInputOutcome(inputOutcome)
-            self.won = self._checkWin()
+            try:
+                inputOutcome = self.player.handleInput()
+                needsRedraw = self._handleInputOutcome(inputOutcome)
+                self.won = self._checkWin()
+            except Empty:
+                pass
 
             currentTime = perf_counter()
 
@@ -260,4 +264,4 @@ class Round:
         endTime = perf_counter()
         self.timeElapsed = endTime - startTime
 
-        self._handleRoundOver()
+        self._showRoundOver()

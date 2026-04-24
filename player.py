@@ -17,7 +17,7 @@ class Player:
     def handleInput(self) -> dict | None:
         outcome = {"moved": False, "flipped": False}
         sel = self.linkedBoard.selectedPos
-        action = getLatestAction()
+        action = getLatestAction(0.1)
 
         if action == "ENTER":
             self.linkedBoard.flipSelectedTile()
