@@ -14,25 +14,29 @@ _MOVES = {"UP": [-1, 0], "LEFT": [0, -1], "DOWN": [1, 0], "RIGHT": [0, 1]}
 class Player:
     linkedBoard: Board
 
-    def handleInput(self):
+    def handleInput(self) -> dict | None:
+        outcome = {"moved": False, "flipped": False}
         sel = self.linkedBoard.selectedPos
         action = getUserAction()
 
         if action == "ENTER":
             self.linkedBoard.flipSelectedTile()
-            return
+            outcome["flipped"] = True
+            return outcome
+
         if action not in _MOVES:
-            return
+            return None
 
         nextIPos = sel[0] + _MOVES[action][0]
         nextJPos = sel[1] + _MOVES[action][1]
-
         if (
             nextIPos < 0
             or nextJPos < 0
             or nextIPos + 1 > self.linkedBoard.size
             or nextJPos + 1 > self.linkedBoard.size
         ):
-            return
+            return None
 
         self.linkedBoard.moveSelection(nextIPos, nextJPos)
+        outcome["moved"] = True
+        return outcome
