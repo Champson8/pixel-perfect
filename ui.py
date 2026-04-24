@@ -98,7 +98,7 @@ def _getBoardDrawing(board: Board, centerToWidth: int = 0) -> str:
     return "\n".join(centeredFrame) + "\n"
 
 
-def overwriteConsole():
+def clearConsole():
     _write("\033[H\033[2J\033[3J", False)
     stdout.flush()
 
@@ -108,7 +108,7 @@ def hideCursor():
 
 
 def drawMenu(title: str, options: list | tuple, selectedIdx: int) -> int:
-    overwriteConsole()
+    clearConsole()
     width = _drawTitle(title)
 
     frame = []
@@ -125,7 +125,7 @@ def drawMenu(title: str, options: list | tuple, selectedIdx: int) -> int:
 
 
 def drawAbout() -> int:
-    overwriteConsole()
+    clearConsole()
     width = _drawTitle("información")
 
     frame = [
@@ -148,7 +148,7 @@ def drawAbout() -> int:
 
 
 def drawSettings(options: list | tuple, selectedIdx: int) -> int:
-    overwriteConsole()
+    clearConsole()
     width = _drawTitle("configuración")
 
     frame = []
@@ -176,7 +176,7 @@ def drawSettings(options: list | tuple, selectedIdx: int) -> int:
 
 
 def drawRoundHUD(roundNumber: int, time: int | float) -> int:
-    overwriteConsole()
+    clearConsole()
     width = _drawTitle(f"ronda #{roundNumber}")
     if time >= 0:
         _write(f"> {floor(time)}s <".center(width) + "\n")

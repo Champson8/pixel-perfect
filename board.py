@@ -124,6 +124,7 @@ class Board:
             self.size, deepcopy(self.tiles), isInteractable=willBeInteractable
         )
 
+        originalMutations = mutationCount
         while newBoard == self:
             randomCoords = lambda: (
                 randint(0, self.size - 1),
@@ -131,6 +132,7 @@ class Board:
             )
             firstMutationDone = False
             lastCoords = None
+            mutationCount = originalMutations
             while mutationCount > 0:
                 startCoords = randomCoords()
                 if firstMutationDone:
