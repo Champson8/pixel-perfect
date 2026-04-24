@@ -1,10 +1,11 @@
 from dataclasses import dataclass
+from random import randint
 import ui
 from board import Board
+from player import Player
 from data import GameSettings
-from enums import GameState
+from enums import GameState, InitialBoardState
 from utils import getUserAction
-from constants import HIDE_CURSOR
 
 
 class GameManager:
@@ -130,7 +131,63 @@ class Round:
         self.targetBoard: Board = None
         self.playerBoard: Board = None
         self.player: Player = None
-        self.tierConfig: dict = {}
+        self.boardConfig: dict = {}
         self.timeElapsed: int = 0
         self.mistakes: int = 0
         self.moves: int = 0
+
+    def _setBoardConfig(self):
+        difficulty = (self.roundNumber - 1) / (self.settings.totalRounds - 1)
+
+        if difficulty <= 0.2:
+            self.boardConfig = {
+                "initialState": InitialBoardState.BLANK,
+                "mutationsCount": randint(2, 5),
+                "spreadFactor": 0.35,
+                "symmetryWeight": 1,
+            }
+        elif difficulty <= 0.4:
+            self.boardConfig = {
+                "initialState": InitialBoardState.PATTERN,
+                "mutationsCount": randint(3, 7),
+                "spreadFactor": 0.2,
+                "symmetryWeight": 0.85,
+            }
+        elif difficulty <= 0.7:
+            self.boardConfig = {
+                "initialState": InitialBoardState.PATTERN,
+                "mutationsCount": randint(5, 9),
+                "spreadFactor": 0.65,
+                "symmetryWeight": 0.4,
+            }
+        elif difficulty <= 0.9:
+            self.boardConfig = {
+                "initialState": InitialBoardState.PATTERN,
+                "mutationsCount": randint(8, 12),
+                "spreadFactor": 0.8,
+                "symmetryWeight": 0.1,
+            }
+        else:
+            self.boardConfig = {
+                "initialState": InitialBoardState.RANDOM,
+                "mutationsCount": randint(10, 15),
+                "spreadFactor": 0.9,
+                "symmetryWeight": 0,
+            }
+
+    def _generateBoards(self):
+        self._setBoardConfig()
+
+        self.targetBoard = Board(self.settings.boardSize)
+        self.targetBoard.generateBase(self.boardConfig["initialState"])
+
+        self.playerBoard = self.targetBoard.mutated(
+            True,
+            self.boardConfig["mutationsCount"],
+            self.boardConfig["spreadFactor"],
+            self.boardConfig["symmetryWeight"],
+        )
+
+    def start(self):
+        self._generateBoards()
+        self.player = Player(self.playerBoard)
