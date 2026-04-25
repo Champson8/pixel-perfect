@@ -200,6 +200,13 @@ def drawStatsSummary(stats: dict[str, str | float], centerToWidth: int = 0):
     _write(frame)
 
 
+def drawGameOver(title: str, stats: dict[str, str | float]):
+    width = _drawTitle(title)
+    drawStatsSummary(stats, width)
+    _write("\n" + _formattedSelectedOption("Guardar Resultados"))
+    _write(_EXIT_CONTROLS)
+
+
 def drawBoards(*boards: Board, separator: str = "", centerToWidth: int = 0):
     frame = []
     for board in boards:

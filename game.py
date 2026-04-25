@@ -28,7 +28,7 @@ class GameManager:
                     GameState.ABOUT: self.handleAbout,
                     GameState.SETTINGS: self.handleSettings,
                     GameState.PLAYING: self.startGame,
-                    GameState.OVER: lambda: None,
+                    GameState.OVER: self.handleGameOver,
                     GameState.LEADERBOARD: lambda: None,
                 }.get(self.state)()
 
@@ -127,6 +127,21 @@ class GameManager:
             self.stats.timeElapsed += round.timeElapsed
             self.stats.totalMoves += round.moves
             self.stats.totalMistakes += round.mistakes
+        self.state = GameState.OVER
+
+    def handleGameOver(self):
+        self.stats.calculateAccuracy()
+        self.stats.calculateMPS()
+        gameStatsSummary = self.stats.getFormattedStats()
+
+        ui.clearConsole()
+        ui.drawGameOver("resultados", gameStatsSummary)
+
+        action = getLatestAction()
+        if action == "ENTER":
+            self.state = GameState.LEADERBOARD
+        elif action == "ESCAPE":
+            self.state = GameState.TITLE
 
 
 @dataclass
