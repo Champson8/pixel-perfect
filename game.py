@@ -155,12 +155,18 @@ class Round:
     def __post_init__(self):
         self.targetBoard: Board = None
         self.playerBoard: Board = None
+
         self.player: Player = None
         self.boardConfig: dict = {}
+
         self.timeElapsed: int = 0
         self.mistakes: int = 0
         self.moves: int = 0
         self.flips: int = 0
+
+        self.didFatalMistake: bool = False
+        self.hideTargetBoard: bool = False
+
         self.isOver: bool = False
         self.won: bool = False
 
@@ -226,32 +232,67 @@ class Round:
                 selectedPos = self.playerBoard.selectedPos
                 if self.playerBoard[selectedPos] != self.targetBoard[selectedPos]:
                     self.mistakes += 1
+                    if self.settings.suddenDeath:
+                        self.isOver = self.didFatalMistake = True
                 return True
         return False
 
     def _checkWin(self) -> bool:
         return self.playerBoard == self.targetBoard
 
-    def _drawRound(self, timeLeft: float = -1, boardSeparator: str = ""):
+    def _getBoardOverrides(self, noOverride: bool = False) -> dict:
+        selectedPos = tuple(self.playerBoard.selectedPos)
+        if noOverride:
+            return {selectedPos: "NONE"}
+        elif self.didFatalMistake:
+            return {selectedPos: "RED"}
+        elif self.hideTargetBoard:
+            return {
+                (i, j): "HIDDEN"
+                for j in range(self.settings.boardSize)
+                for i in range(self.settings.boardSize)
+            }
+
+    def _drawRound(
+        self, timeLeft: float = -1, boardSeparator: str = "", overrides: dict = {}
+    ):
         width = ui.drawRoundHUD(self.roundNumber, timeLeft)
         ui.drawBoards(
             self.targetBoard,
             self.playerBoard,
             separator=boardSeparator,
             centerToWidth=width,
+            overrides=overrides,
         )
+
+    def _showFatalMistake(self):
+        self.hideTargetBoard = False
+        for i in range(5):
+            doBlink = i % 2 == 0
+            ui.clearConsole()
+            boardOverrides = self._getBoardOverrides(not doBlink)
+            self._drawRound(
+                boardSeparator=" F A T A L " if doBlink else "",
+                overrides=boardOverrides,
+            )
+            sleep(0.5)
 
     def _showRoundOver(self):
         roundStats = self._getFormattedStats()
-        for i in range(5):
-            ui.clearConsole()
-            if i % 2 == 0:
-                self._drawRound(
-                    boardSeparator=" M A T C H " if self.won else " N O   M A T C H "
-                )
-            else:
-                self._drawRound()
-            sleep(0.5)
+        if self.didFatalMistake:
+            self._showFatalMistake()
+        else:
+            for i in range(5):
+                ui.clearConsole()
+                if i % 2 == 0:
+                    self._drawRound(
+                        boardSeparator=(
+                            " M A T C H " if self.won else " N O   M A T C H "
+                        )
+                    )
+                else:
+                    self._drawRound()
+                sleep(0.5)
         sleep(0.5)
         width = ui.drawRoundHUD(self.roundNumber)
         ui.drawStatsSummary(roundStats, width)
