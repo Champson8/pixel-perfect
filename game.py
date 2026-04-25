@@ -124,6 +124,7 @@ class GameManager:
         for i in range(1, self.settings.totalRounds + 1):
             round = Round(i, self.settings)
             round.start()
+            self.stats.totalWonRounds += int(round.won)
             self.stats.timeElapsed += round.timeElapsed
             self.stats.totalMoves += round.moves
             self.stats.totalFlips += round.flips
@@ -133,6 +134,7 @@ class GameManager:
     def handleGameOver(self):
         self.stats.calculateAccuracy()
         self.stats.calculateMPS()
+        self.stats.calculateScore(self.settings)
         gameStatsSummary = self.stats.getFormattedStats()
 
         ui.clearConsole()

@@ -24,7 +24,7 @@ class GameSettings:
         obstacles (bool, optional):
             Whether to generate both boards with non-interactable tiles in them.
             Defaults to False.
-        autoRandomFlip (bool, optional):
+        chaosFlipping (bool, optional):
             Whether to periodically automatically flip random tiles on the player board.
             Defaults to False.
     """
@@ -89,7 +89,7 @@ class GameSettings:
             "scoreMultiplier": 1.1,
         },
     )
-    autoRandomFlip: bool = field(
+    chaosFlipping: bool = field(
         default=False,
         metadata={
             "label": "Celdas Caóticas",
@@ -110,6 +110,7 @@ class GameSettings:
 
 @dataclass
 class StatsTracker:
+    totalWonRounds: int = 0
     timeElapsed: float = 0
     totalMoves: int = 0
     totalFlips: int = 0
@@ -118,6 +119,7 @@ class StatsTracker:
     def __post_init__(self):
         self.accuracy: float = 0
         self.movesPerSecond: float = None
+        self.score: int = None
 
     def calculateAccuracy(self):
         if self.totalFlips:
@@ -128,6 +130,22 @@ class StatsTracker:
     def calculateMPS(self):
         self.movesPerSecond = self.totalMoves / self.timeElapsed
 
+    def calculateScore(self, gameSettings: GameSettings):
+        multiplier = 1
+        for f in fields(gameSettings):
+            md = f.metadata
+            if md.get("scoreMultiplier") and bool(getattr(gameSettings, f.name)):
+                multiplier += md["scoreMultiplier"] - 1
+        boardSizeBonus = 100 * (gameSettings.boardSize - 4) / 2
+        self.score = (
+            (self.totalWonRounds * (1000 + boardSizeBonus))
+            - (self.totalMistakes * 50)
+            - (self.timeElapsed * 10)
+            - self.totalMoves
+        )
+        self.score *= multiplier
+        self.score = max(0, round(self.score))
+
     def getFormattedStats(self) -> dict:
         stats = {
             "Tiempo Total": f"{round(self.timeElapsed, 2)}s",
@@ -135,5 +153,6 @@ class StatsTracker:
             "Movimientos por Segundo": round(self.movesPerSecond, 2),
             "Total de Errores": self.totalMistakes,
             "Precisión": f"{round(self.accuracy, 2)}%",
+            "Puntaje": self.score,
         }
         return stats
