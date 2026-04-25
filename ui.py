@@ -199,7 +199,7 @@ def drawRoundHUD(roundNumber: int, time: int | float = -1) -> int:
 
 def drawStatsSummary(stats: dict[str, str | float], centerToWidth: int = 0):
     frame = []
-    longestValLength = max(len(str(val)) for val in stats.values)
+    longestValLength = max(len(str(val)) for val in stats.values())
     for key, val in stats.items():
         keyDisplay = (key + ":").ljust(25)
         valDisplay = str(val).ljust(longestValLength)

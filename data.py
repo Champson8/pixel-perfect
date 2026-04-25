@@ -112,14 +112,18 @@ class GameSettings:
 class StatsTracker:
     timeElapsed: float = 0
     totalMoves: int = 0
+    totalFlips: int = 0
     totalMistakes: int = 0
 
     def __post_init__(self):
-        self.accuracy: float = None
+        self.accuracy: float = 0
         self.movesPerSecond: float = None
 
     def calculateAccuracy(self):
-        self.accuracy = (self.totalMoves - self.totalMistakes) / self.totalMoves * 100
+        if self.totalFlips:
+            self.accuracy = (
+                (self.totalFlips - self.totalMistakes) / self.totalFlips * 100
+            )
 
     def calculateMPS(self):
         self.movesPerSecond = self.totalMoves / self.timeElapsed

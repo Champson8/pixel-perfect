@@ -126,6 +126,7 @@ class GameManager:
             round.start()
             self.stats.timeElapsed += round.timeElapsed
             self.stats.totalMoves += round.moves
+            self.stats.totalFlips += round.flips
             self.stats.totalMistakes += round.mistakes
         self.state = GameState.OVER
 
@@ -157,6 +158,7 @@ class Round:
         self.timeElapsed: int = 0
         self.mistakes: int = 0
         self.moves: int = 0
+        self.flips: int = 0
         self.isOver: bool = False
         self.won: bool = False
 
@@ -218,6 +220,7 @@ class Round:
                 self.moves += 1
                 return True
             elif outcome["flipped"]:
+                self.flips += 1
                 selectedPos = self.playerBoard.selectedPos
                 if self.playerBoard[selectedPos] != self.targetBoard[selectedPos]:
                     self.mistakes += 1
@@ -294,5 +297,7 @@ class Round:
 
         endTime = perf_counter()
         self.timeElapsed = endTime - startTime
+        if self.settings.timeLimit and self.timeElapsed > self.settings.timeLimit:
+            self.timeElapsed = self.settings.timeLimit
 
         self._showRoundOver()
