@@ -62,7 +62,8 @@ class GameSettings:
     hideTargetAfter: int = field(
         default=0,
         metadata={
-            "label": "Tiempo para Memorizar Patrón",
+            "label": "Ocultar Patrón",
+            "description": "Oculta el patrón a copiar después del tiempo especificado.",
             "type": "time",
             "min": 0,
             "max": 10,
@@ -70,13 +71,28 @@ class GameSettings:
         },
     )
     suddenDeath: bool = field(
-        default=False, metadata={"label": "Muerte Súbita", "type": "bool"}
+        default=False,
+        metadata={
+            "label": "Muerte Súbita",
+            "description": "Finaliza la ronda si cometes un error.",
+            "type": "bool",
+        },
     )
     obstacles: bool = field(
-        default=False, metadata={"label": "Obstáculos", "type": "bool"}
+        default=False,
+        metadata={
+            "label": "Obstáculos",
+            "description": "Añade obstáculos en forma de celdas al tablero.",
+            "type": "bool",
+        },
     )
     autoRandomFlip: bool = field(
-        default=False, metadata={"label": "Cambiar Celdas Aleatorias", "type": "bool"}
+        default=False,
+        metadata={
+            "label": "Celdas Caóticas",
+            "description": "Cambia celdas aleatorias periódicamente.",
+            "type": "bool",
+        },
     )
 
     def _generateOptionsList(self) -> list[dict]:
@@ -93,3 +109,23 @@ class StatsTracker:
     timeElapsed: float = 0
     totalMoves: int = 0
     totalMistakes: int = 0
+
+    def __post_init__(self):
+        self.accuracy: float = None
+        self.movesPerSecond: float = None
+
+    def calculateAccuracy(self):
+        self.accuracy = (self.totalMoves - self.totalMistakes) / self.totalMoves * 100
+
+    def calculateMPS(self):
+        self.movesPerSecond = self.totalMoves / self.timeElapsed
+
+    def getFormattedStats(self) -> dict:
+        stats = {
+            "Tiempo Total": f"{round(self.timeElapsed, 2)}s",
+            "Total de Movimientos": self.totalMoves,
+            "Movimientos por Segundo": round(self.movesPerSecond, 2),
+            "Total de Errores": self.totalMistakes,
+            "Precisión": f"{round(self.accuracy, 2)}%",
+        }
+        return stats
