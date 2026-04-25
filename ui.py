@@ -29,6 +29,7 @@ _BORDER_CHARS = {
 }
 _TILE_CHARS = {"upper": {0: "┌─┐", 1: "▗▄▖"}, "lower": {0: "└─┘", 1: "▝▀▘"}}
 _EXIT_CONTROLS = "\n* ESC para regresar/salir"
+_COLORAMA_CODES = [*vars(Back).values(), *vars(Fore).values()]
 
 
 def _write(lines: str | list[str] | tuple[str], newline: bool = True):
@@ -91,10 +92,9 @@ def _getBoardDrawing(board: Board, centerToWidth: int = 0) -> str:
         totalWidth = centerToWidth - 1
         if totalWidth % 2 == 0:
             totalWidth += 1
-        if Back.BLUE in line:
-            totalWidth += len(Back.BLUE)
-        if Back.RESET in line:
-            totalWidth += len(Back.RESET)
+        for code in _COLORAMA_CODES:
+            if code in line:
+                totalWidth += len(code)
         centeredFrame.append(line.center(totalWidth))
 
     return "\n".join(centeredFrame) + "\n"
