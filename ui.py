@@ -51,11 +51,37 @@ def _drawTitle(title: str) -> int:
     return padding
 
 
-def _getBoardDrawing(board: Board, centerToWidth: int = 0) -> str:
+def _formattedTile(
+    board: Board, tileValue: int, tilePos: list | tuple, getter, overrides: dict
+) -> str:
+    tileStr = None
+    if tuple(tilePos) in overrides:
+        style = overrides[tuple(tilePos)]
+        if style == "RED":
+            tileStr = Back.RED + getter(tileValue) + Back.RESET
+        elif style == "NONE":
+            tileStr = getter(tileValue)
+        elif style == "HIDDEN":
+            tileStr = "   "
+    else:
+        if board.isInteractable and list(tilePos) == board.selectedPos:
+            tileStr = Back.BLUE + getter(tileValue) + Back.RESET
+        else:
+            tileStr = getter(tileValue)
+    return tileStr
+
+
+def _getUpperTileChars(tileValue: int) -> str:
+    return _TILE_CHARS["upper"][tileValue]
+
+
+def _getLowerTileChars(tileValue: int) -> str:
+    return _TILE_CHARS["lower"][tileValue]
+
+
+def _getBoardDrawing(board: Board, centerToWidth: int = 0, overrides: dict = {}) -> str:
     border = _BORDER_CHARS["double" if board.isInteractable else "single"]
-    getUpper = lambda tile: _TILE_CHARS["upper"][tile]
-    getLower = lambda tile: _TILE_CHARS["lower"][tile]
-    getters = [getUpper, getLower]
+    getters = [_getUpperTileChars, _getLowerTileChars]
 
     frame = [
         border["topLeft"]
@@ -65,14 +91,11 @@ def _getBoardDrawing(board: Board, centerToWidth: int = 0) -> str:
 
     for i, row in enumerate(board.tiles):
         lines = []
-        for k in range(len(getters)):
+        for getter in getters:
+
             lines.append(
                 [
-                    (
-                        Back.BLUE + getters[k](tile.value) + Back.RESET
-                        if board.isInteractable and [i, j] == board.selectedPos
-                        else getters[k](tile.value)
-                    )
+                    _formattedTile(board, tile.value, (i, j), getter, overrides)
                     for j, tile in enumerate(row)
                 ]
             )
@@ -214,8 +237,10 @@ def drawGameOver(title: str, stats: dict[str, str | float]):
     _write(_EXIT_CONTROLS)
 
 
-def drawBoards(*boards: Board, separator: str = "", centerToWidth: int = 0):
+def drawBoards(
+    *boards: Board, separator: str = "", centerToWidth: int = 0, overrides: dict = {}
+):
     frame = []
     for board in boards:
-        frame.append(_getBoardDrawing(board, centerToWidth))
+        frame.append(_getBoardDrawing(board, centerToWidth, overrides))
     _write(f"{separator.center(centerToWidth if separator else 0, "⋅")}\n".join(frame))
