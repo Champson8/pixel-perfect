@@ -1,6 +1,6 @@
 from dataclasses import field
 from msvcrt import getch
-from queue import Queue
+from queue import Queue, Empty
 from threading import Thread
 
 
@@ -40,6 +40,14 @@ Thread(target=_globalActionListener, daemon=True).start()
 
 def getLatestAction(timeout: float | None = None) -> str:
     return actionQueue.get(timeout=timeout)
+
+
+def clearActionQueue():
+    while not actionQueue.empty():
+        try:
+            actionQueue.get_nowait()
+        except Empty:
+            break
 
 
 def defaultMutable(value):

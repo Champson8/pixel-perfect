@@ -7,7 +7,7 @@ from board import Board
 from player import Player
 from data import GameSettings, StatsTracker
 from enums import GameState, InitialBoardState
-from utils import getLatestAction
+from utils import getLatestAction, clearActionQueue
 
 
 class GameManager:
@@ -266,6 +266,7 @@ class Round:
         return stats
 
     def start(self):
+        clearActionQueue()
         self._generateBoards()
         self.player = Player(self.playerBoard)
         startTime = lastTimer = perf_counter()
