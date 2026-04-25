@@ -185,11 +185,12 @@ def drawRoundHUD(roundNumber: int, time: int | float = -1) -> int:
     return width
 
 
-def drawRoundSummary(stats: dict[str, float], centerToWidth: int):
+def drawStatsSummary(stats: dict[str, str | float], centerToWidth: int = 0):
     frame = []
+    longestValLength = max(len(str(val)) for val in stats.values)
     for key, val in stats.items():
-        keyDisplay = (key + ":").ljust(20)
-        valDisplay = str(round(val, 2)).ljust(4)
+        keyDisplay = (key + ":").ljust(25)
+        valDisplay = str(val).ljust(longestValLength)
         frame.append(f"{keyDisplay} {valDisplay}".center(centerToWidth))
     _write(frame)
 

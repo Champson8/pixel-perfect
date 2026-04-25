@@ -222,11 +222,7 @@ class Round:
         )
 
     def _showRoundOver(self):
-        roundStats = {
-            "Tiempo": self.timeElapsed,
-            "Movimientos": self.moves,
-            "Errores": self.mistakes,
-        }
+        roundStats = self._getFormattedStats()
         for i in range(5):
             ui.clearConsole()
             if i % 2 == 0:
@@ -237,10 +233,17 @@ class Round:
                 self._drawRound()
             sleep(0.5)
         sleep(0.5)
-        ui.clearConsole()
         width = ui.drawRoundHUD(self.roundNumber)
-        ui.drawRoundSummary(roundStats, width)
+        ui.drawStatsSummary(roundStats, width)
         sleep(3)
+
+    def _getFormattedStats(self) -> dict:
+        stats = {
+            "Tiempo": f"{round(self.timeElapsed, 2)}s",
+            "Movimientos": self.moves,
+            "Errores": self.mistakes,
+        }
+        return stats
 
     def start(self):
         self._generateBoards()
