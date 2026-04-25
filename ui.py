@@ -2,7 +2,7 @@ from __future__ import annotations
 from math import ceil
 from sys import stdout
 from typing import TYPE_CHECKING
-from colorama import Style, Back, Fore
+from colorama import Back, Fore
 
 if TYPE_CHECKING:
     from board import Board
@@ -68,7 +68,7 @@ def _getBoardDrawing(board: Board, centerToWidth: int = 0) -> str:
             lines.append(
                 [
                     (
-                        Back.BLUE + getters[k](tile.value) + Style.RESET_ALL
+                        Back.BLUE + getters[k](tile.value) + Back.RESET
                         if board.isInteractable and [i, j] == board.selectedPos
                         else getters[k](tile.value)
                     )
@@ -93,15 +93,15 @@ def _getBoardDrawing(board: Board, centerToWidth: int = 0) -> str:
             totalWidth += 1
         if Back.BLUE in line:
             totalWidth += len(Back.BLUE)
-        if Style.RESET_ALL in line:
-            totalWidth += len(Style.RESET_ALL)
+        if Back.RESET in line:
+            totalWidth += len(Back.RESET)
         centeredFrame.append(line.center(totalWidth))
 
     return "\n".join(centeredFrame) + "\n"
 
 
 def _formattedSelectedOption(string: str):
-    return f" > [ {Fore.LIGHTBLUE_EX + string + Style.RESET_ALL} ] <"
+    return f" > [ {Fore.LIGHTBLUE_EX + string + Fore.RESET} ] <"
 
 
 def clearConsole():
@@ -168,11 +168,18 @@ def drawSettings(options: list[dict] | tuple[dict], selectedIdx: int) -> int:
             case "time":
                 valueDisplay = "OFF" if option["value"] == 0 else f"{option['value']}s"
         descDisplay = (
-            f"  -  {option["description"]}" if option.get("description") else ""
+            Fore.LIGHTBLACK_EX + f"  -  {option["description"]}" + Fore.RESET
+            if option.get("description")
+            else ""
+        )
+        scoreMultDisplay = (
+            Fore.LIGHTBLACK_EX + f"Puntaje ×{option["scoreMultiplier"]}" + Fore.RESET
+            if option.get("scoreMultiplier")
+            else ""
         )
         optionText = f"{option["label"].ljust(30)} {valueDisplay}"
         frame.append(
-            _formattedSelectedOption(optionText) + descDisplay
+            _formattedSelectedOption(optionText) + f"{descDisplay} {scoreMultDisplay}"
             if i == selectedIdx
             else f"     {optionText}"
         )

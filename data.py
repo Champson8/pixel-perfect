@@ -68,6 +68,7 @@ class GameSettings:
             "min": 0,
             "max": 10,
             "step": 1,
+            "scoreMultiplier": 1.2,
         },
     )
     suddenDeath: bool = field(
@@ -76,6 +77,7 @@ class GameSettings:
             "label": "Muerte Súbita",
             "description": "Finaliza la ronda si cometes un error.",
             "type": "bool",
+            "scoreMultiplier": 1.5,
         },
     )
     obstacles: bool = field(
@@ -84,6 +86,7 @@ class GameSettings:
             "label": "Obstáculos",
             "description": "Añade obstáculos en forma de celdas al tablero.",
             "type": "bool",
+            "scoreMultiplier": 1.1,
         },
     )
     autoRandomFlip: bool = field(
@@ -92,6 +95,7 @@ class GameSettings:
             "label": "Celdas Caóticas",
             "description": "Cambia celdas aleatorias periódicamente.",
             "type": "bool",
+            "scoreMultiplier": 1.4,
         },
     )
 
