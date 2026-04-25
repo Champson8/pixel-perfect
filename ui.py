@@ -100,6 +100,10 @@ def _getBoardDrawing(board: Board, centerToWidth: int = 0) -> str:
     return "\n".join(centeredFrame) + "\n"
 
 
+def _formattedSelectedOption(string: str):
+    return f" > [ {Fore.LIGHTBLUE_EX + string + Style.RESET_ALL} ] <"
+
+
 def clearConsole():
     _write("\033[H\033[2J\033[3J", False)
     stdout.flush()
@@ -116,9 +120,7 @@ def drawMenu(title: str, options: list[str] | tuple[str], selectedIdx: int) -> i
     frame = []
     for i, option in enumerate(options):
         frame.append(
-            f" > [ {Fore.LIGHTBLUE_EX + option + Style.RESET_ALL} ] < "
-            if i == selectedIdx
-            else f"     {option}"
+            _formattedSelectedOption(option) if i == selectedIdx else f"     {option}"
         )
 
     _write(frame)
@@ -165,9 +167,12 @@ def drawSettings(options: list[dict] | tuple[dict], selectedIdx: int) -> int:
                 valueDisplay = "ON" if option["value"] else "OFF"
             case "time":
                 valueDisplay = "OFF" if option["value"] == 0 else f"{option['value']}s"
+        descDisplay = (
+            f"  -  {option["description"]}" if option.get("description") else ""
+        )
         optionText = f"{option["label"].ljust(30)} {valueDisplay}"
         frame.append(
-            f" > [ {Fore.LIGHTBLUE_EX + optionText + Style.RESET_ALL} ] < "
+            _formattedSelectedOption(optionText) + descDisplay
             if i == selectedIdx
             else f"     {optionText}"
         )
