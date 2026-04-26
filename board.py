@@ -55,8 +55,14 @@ class Board:
     def flipSelectedTile(self):
         self[self.selectedPos].flip()
 
+    def flipTile(self, position: tuple):
+        self[position].flip()
+
     def moveSelection(self, newI: int, newJ: int):
         self.selectedPos = [newI, newJ]
+
+    def getRandomPos(self) -> tuple:
+        return (randint(0, self.size - 1), randint(0, self.size - 1))
 
     def generateBase(self, initialState: InitialBoardState = InitialBoardState.PATTERN):
         if initialState not in InitialBoardState:
