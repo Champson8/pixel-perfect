@@ -54,20 +54,18 @@ def _drawTitle(title: str) -> int:
 def _formattedTile(
     board: Board, tileValue: int, tilePos: list | tuple, getter, overrides: dict
 ) -> str:
-    tileStr = None
-    if tuple(tilePos) in overrides:
-        style = overrides[tuple(tilePos)]
-        if style == "RED":
-            tileStr = Back.RED + getter(tileValue) + Back.RESET
-        elif style == "NONE":
-            tileStr = getter(tileValue)
-        elif style == "HIDDEN":
-            tileStr = "   "
-    else:
-        if board.isInteractable and list(tilePos) == board.selectedPos:
-            tileStr = Back.BLUE + getter(tileValue) + Back.RESET
-        else:
-            tileStr = getter(tileValue)
+    tileStr = getter(tileValue)
+    if board.isInteractable and list(tilePos) == board.selectedPos:
+        tileStr = Back.BLUE + getter(tileValue) + Back.RESET
+    if overrides.get("_id") is None or board.id == overrides["_id"]:
+        if tuple(tilePos) in overrides:
+            style = overrides[tuple(tilePos)]
+            if style == "RED":
+                tileStr = Back.RED + getter(tileValue) + Back.RESET
+            elif style == "HIDDEN":
+                tileStr = "   "
+            elif style == "NONE":
+                pass
     return tileStr
 
 
