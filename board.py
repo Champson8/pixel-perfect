@@ -10,6 +10,7 @@ class Board:
     size: int
     tiles: list[list[int]] = defaultMutable([[]])
     isInteractable: bool = False
+    id: str = None
 
     def __post_init__(self):
         if self.size % 2 == 1:
@@ -87,6 +88,7 @@ class Board:
         mutationCount: int = 0,
         spreadFactor: float = 0.0,
         symmetryWeight: float = 1.0,
+        newId: str = None,
     ) -> Board:
         """Creates and returns a new Board instance based on the original instance's tileset.
 
@@ -121,7 +123,7 @@ class Board:
             )
 
         newBoard = Board(
-            self.size, deepcopy(self.tiles), isInteractable=willBeInteractable
+            self.size, deepcopy(self.tiles), isInteractable=willBeInteractable, id=newId
         )
 
         originalMutations = mutationCount
