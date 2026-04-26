@@ -47,6 +47,7 @@ class GameSettings:
             "min": 3,
             "max": 10,
             "step": 1,
+            "newlineAfter": True,
         },
     )
     timeLimit: int = field(
@@ -57,6 +58,7 @@ class GameSettings:
             "min": 0,
             "max": 60,
             "step": 10,
+            "newlineAfter": True,
         },
     )
     hideTargetAfter: int = field(
@@ -96,6 +98,7 @@ class GameSettings:
             "description": "Cambia celdas aleatorias periódicamente.",
             "type": "bool",
             "scoreMultiplier": 1.4,
+            "newlineAfter": True,
         },
     )
 
@@ -148,11 +151,11 @@ class StatsTracker:
 
     def getFormattedStats(self) -> dict:
         stats = {
-            "Tiempo Total": f"{round(self.timeElapsed, 2)}s",
+            "Tiempo Total": f"{round(self.timeElapsed, 2)}s\n",
             "Total de Movimientos": self.totalMoves,
-            "Movimientos por Segundo": round(self.movesPerSecond, 2),
+            "Movimientos por Segundo": f"{round(self.movesPerSecond, 2)}\n",
             "Total de Errores": self.totalMistakes,
-            "Precisión": f"{round(self.accuracy, 2)}%",
+            "Precisión": f"{round(self.accuracy, 2)}%\n",
             "Puntaje": self.score,
         }
         return stats

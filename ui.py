@@ -182,7 +182,6 @@ def drawSettings(options: list[dict] | tuple[dict], selectedIdx: int) -> int:
         match option["type"]:
             case "action":
                 valueDisplay = ""
-                frame.append("")
             case "int":
                 valueDisplay = str(option["value"])
             case "bool":
@@ -205,6 +204,8 @@ def drawSettings(options: list[dict] | tuple[dict], selectedIdx: int) -> int:
             if i == selectedIdx
             else f"     {optionText}"
         )
+        if option.get("newlineAfter"):
+            frame.append("")
 
     _write(frame)
     _write(_EXIT_CONTROLS + ", A/S o ←/→ para configurar opción")
