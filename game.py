@@ -268,6 +268,17 @@ class Round:
             overrides=overrides,
         )
 
+    def _shouldBlinkFrame(self, eventTime: float, secondsBeforeEvent: float) -> bool:
+        shouldBlink = False
+        if eventTime:
+            currentTime = perf_counter()
+            timeUntilEvent = eventTime - currentTime
+            if 0 < timeUntilEvent <= secondsBeforeEvent:
+                shouldBlink = int(timeUntilEvent * 3) % 2 == 1
+            else:
+                shouldBlink = timeUntilEvent < 0
+        return shouldBlink
+
     def _showFatalMistake(self):
         self.hideTargetBoard = False
         for i in range(5):
@@ -315,12 +326,38 @@ class Round:
         clearActionQueue()
         self._generateBoards()
         self.player = Player(self.playerBoard)
-        startTime = lastTimer = perf_counter()
+        startTime = lastRedrawTimer = lastChaosTimer = perf_counter()
+        hideTargetTime = (
+            startTime + self.settings.hideTargetAfter
+            if self.settings.hideTargetAfter
+            else None
+        )
+        chaosFlipTime = startTime + 3 if self.settings.chaosFlipping else None
+        randomTile = self.playerBoard.getRandomPos()
 
         self._drawRound(self.settings.timeLimit if self.settings.timeLimit else -1)
 
         while not self.isOver:
+            currentTime = perf_counter()
             needsRedraw = False
+            overrides = {}
+
+            if self.settings.chaosFlipping and currentTime - lastChaosTimer >= 3:
+                lastChaosTimer = currentTime
+                chaosFlipTime = currentTime + 3
+                self.playerBoard.flipTile(randomTile)
+                randomTile = self.playerBoard.getRandomPos()
+
+            self.hideTargetBoard = self._shouldBlinkFrame(hideTargetTime, 2)
+            doChaosFlipBlink = self._shouldBlinkFrame(chaosFlipTime, 2)
+
+            if self.hideTargetBoard:
+                overrides = {"target": self._getBoardOverrides("HIDDEN", "all")}
+            if doChaosFlipBlink:
+                overrides = {
+                    **overrides,
+                    "player": self._getBoardOverrides("GRAY", randomTile),
+                }
 
             try:
                 inputOutcome = self.player.handleInput()
@@ -329,17 +366,19 @@ class Round:
             except Empty:
                 pass
 
-            currentTime = perf_counter()
-
-            if self.settings.timeLimit and (currentTime - lastTimer >= 0.1):
-                lastTimer = currentTime
+            if (
+                self.settings.timeLimit or self.settings.chaosFlipping
+            ) and currentTime - lastRedrawTimer >= 0.1:
+                lastRedrawTimer = currentTime
                 needsRedraw = True
 
             if needsRedraw:
                 elapsed = currentTime - startTime
                 timeLeft = max(0, self.settings.timeLimit - elapsed)
 
-                self._drawRound(timeLeft if self.settings.timeLimit else -1)
+                self._drawRound(
+                    timeLeft if self.settings.timeLimit else -1, overrides=overrides
+                )
 
                 if self.won or self.settings.timeLimit and timeLeft <= 0:
                     self.isOver = True
