@@ -55,17 +55,18 @@ def _formattedTile(
     board: Board, tileValue: int, tilePos: list | tuple, getter, overrides: dict
 ) -> str:
     tileStr = getter(tileValue)
-    if board.isInteractable and list(tilePos) == board.selectedPos:
+    if tuple(tilePos) in overrides:
+        style = overrides[tuple(tilePos)]
+        if style == "RED":
+            tileStr = Back.RED + getter(tileValue) + Back.RESET
+        elif style == "GRAY":
+            tileStr = Back.LIGHTBLACK_EX + getter(tileValue) + Back.RESET
+        elif style == "HIDDEN":
+            tileStr = "   "
+        elif style == "NONE":
+            pass
+    elif board.isInteractable and list(tilePos) == board.selectedPos:
         tileStr = Back.BLUE + getter(tileValue) + Back.RESET
-    if overrides.get("_id") is None or board.id == overrides["_id"]:
-        if tuple(tilePos) in overrides:
-            style = overrides[tuple(tilePos)]
-            if style == "RED":
-                tileStr = Back.RED + getter(tileValue) + Back.RESET
-            elif style == "HIDDEN":
-                tileStr = "   "
-            elif style == "NONE":
-                pass
     return tileStr
 
 
@@ -115,7 +116,7 @@ def _getBoardDrawing(board: Board, centerToWidth: int = 0, overrides: dict = {})
             totalWidth += 1
         for code in _COLORAMA_CODES:
             if code in line:
-                totalWidth += len(code)
+                totalWidth += len(code) * line.count(code)
         centeredFrame.append(line.center(totalWidth))
 
     return "\n".join(centeredFrame) + "\n"
@@ -236,9 +237,42 @@ def drawGameOver(title: str, stats: dict[str, str | float]):
 
 
 def drawBoards(
-    *boards: Board, separator: str = "", centerToWidth: int = 0, overrides: dict = {}
+    *boards: Board,
+    separator: str = "",
+    centerToWidth: int = 0,
+    overrides: dict[tuple | str, str] = {},
 ):
+    """Draws the Board instances passed to it to the terminal.
+
+    Args:
+        separator (str, optional):
+            Text to print in-between each board drawing.
+            Defaults to "".
+        centerToWidth (int, optional):
+            Width to center the boards to.
+            Defaults to 0.
+        overrides (dict[tuple  |  str, str], optional):
+            Overrides for tile-styling.
+            May take a 'base overrides' dictionary to apply to all boards, or a dictionary where each key, value pair is a board id (str), 'base overrides' pair to apply to each board separately.
+            A 'base overrides' dictionary (dict[tuple, str]) is one where each key, value pair is a tile position (tuple), style (str) pair.
+            Defaults to {}.
+
+    Raises:
+        ValueError: If overrides' keys are not all of type 'tuple' or not all of type 'str'.
+    """
+    globalOverrides = True
+    if all(isinstance(key, str) for key in overrides.keys()):
+        globalOverrides = False
+    elif not any(isinstance(key, tuple) for key in overrides.keys()):
+        raise ValueError(
+            "'overrides' keys must all be of type 'tuple' or all of type 'str'."
+        )
+    getBoardOverrides = lambda board: (
+        overrides if globalOverrides else overrides.get(board.id)
+    )
     frame = []
     for board in boards:
-        frame.append(_getBoardDrawing(board, centerToWidth, overrides))
+        frame.append(
+            _getBoardDrawing(board, centerToWidth, getBoardOverrides(board) or {})
+        )
     _write(f"{separator.center(centerToWidth if separator else 0, "⋅")}\n".join(frame))

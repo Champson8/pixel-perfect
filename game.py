@@ -212,7 +212,7 @@ class Round:
     def _generateBoards(self):
         self._setBoardConfig()
 
-        self.targetBoard = Board(self.settings.boardSize)
+        self.targetBoard = Board(self.settings.boardSize, id="target")
         self.targetBoard.generateBase(self.boardConfig["initialState"])
 
         self.playerBoard = self.targetBoard.mutated(
@@ -220,6 +220,7 @@ class Round:
             self.boardConfig["mutationsCount"],
             self.boardConfig["spreadFactor"],
             self.boardConfig["symmetryWeight"],
+            "player",
         )
 
     def _handleInputOutcome(self, outcome: dict | None) -> bool:
@@ -240,18 +241,20 @@ class Round:
     def _checkWin(self) -> bool:
         return self.playerBoard == self.targetBoard
 
-    def _getBoardOverrides(self, noOverride: bool = False) -> dict:
-        selectedPos = tuple(self.playerBoard.selectedPos)
-        if noOverride:
-            return {selectedPos: "NONE"}
-        elif self.didFatalMistake:
-            return {selectedPos: "RED"}
-        elif self.hideTargetBoard:
-            return {
-                (i, j): "HIDDEN"
+    def _getBoardOverrides(self, style: str, tile: str | tuple) -> dict:
+        overrides = {}
+        if isinstance(tile, tuple):
+            overrides = {tile: style}
+        elif tile == "selected":
+            selectedPos = tuple(self.playerBoard.selectedPos)
+            overrides = {selectedPos: style}
+        elif tile == "all":
+            overrides = {
+                (i, j): style
                 for j in range(self.settings.boardSize)
                 for i in range(self.settings.boardSize)
             }
+        return overrides
 
     def _drawRound(
         self, timeLeft: float = -1, boardSeparator: str = "", overrides: dict = {}
@@ -270,7 +273,9 @@ class Round:
         for i in range(5):
             doBlink = i % 2 == 0
             ui.clearConsole()
-            boardOverrides = self._getBoardOverrides(not doBlink)
+            boardOverrides = self._getBoardOverrides(
+                "RED" if doBlink else "NONE", "selected"
+            )
             self._drawRound(
                 boardSeparator=" F A T A L " if doBlink else "",
                 overrides=boardOverrides,
