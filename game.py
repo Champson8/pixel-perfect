@@ -327,7 +327,7 @@ class Round:
     def start(self):
         clearActionQueue()
         self._generateBoards()
-        self.player = Player(self.playerBoard)
+        self.player = Player(self.playerBoard, self.settings.inverseControls)
         startTime = lastRedrawTimer = lastChaosTimer = perf_counter()
         hideTargetTime = (
             startTime + self.settings.hideTargetAfter
