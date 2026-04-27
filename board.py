@@ -15,7 +15,7 @@ class Board:
     def __post_init__(self):
         if self.size % 2 == 1:
             raise ValueError("Size must be an even number.")
-        self.selectedPos = [0, 0]
+        self.selectedPos = (0, 0)
         self.symmetryType = None  # 2 = two-way symmetry; 4 = four-way symmetry
         self.tiles: list[list[_Tile]] = self._intsToTiles(self.tiles)
 
@@ -26,7 +26,7 @@ class Board:
             )
         return self.tiles[key[0]][key[1]]
 
-    def __eq__(self, other: Board):
+    def __eq__(self, other: Board) -> bool:
         if not isinstance(other, Board):
             raise TypeError("Both items in comparison must be of type 'Board'.")
         return self._tilesToInts(self.tiles) == other._tilesToInts(other.tiles)
@@ -59,10 +59,14 @@ class Board:
         self[position].flip()
 
     def moveSelection(self, newI: int, newJ: int):
-        self.selectedPos = [newI, newJ]
+        if self[newI, newJ].value != -1:
+            self.selectedPos = (newI, newJ)
 
     def getRandomPos(self) -> tuple:
-        return (randint(0, self.size - 1), randint(0, self.size - 1))
+        randomPos = None
+        while randomPos is None or self[randomPos].value == -1:
+            randomPos = (randint(0, self.size - 1), randint(0, self.size - 1))
+        return randomPos
 
     def generateBase(self, initialState: InitialBoardState = InitialBoardState.PATTERN):
         if initialState not in InitialBoardState:
@@ -88,7 +92,7 @@ class Board:
 
         self.tiles = self._intsToTiles(newTiles)
 
-    def mutated(
+    def toMutated(
         self,
         willBeInteractable: bool = False,
         mutationCount: int = 0,
@@ -164,7 +168,8 @@ class Board:
                 else:
                     tilesToFlip = [startCoords]
                 for position in tilesToFlip:
-                    newBoard[position].flip()
+                    if newBoard[position].value != -1:
+                        newBoard.flipTile(position)
                 lastCoords = startCoords
                 mutationCount -= 1
 
