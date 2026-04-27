@@ -185,8 +185,6 @@ def drawSettings(options: list[dict] | tuple[dict], selectedIdx: int) -> int:
     frame = []
     for i, option in enumerate(options):
         match option["type"]:
-            case "action":
-                valueDisplay = ""
             case "int":
                 valueDisplay = str(option["value"])
             case "bool":
@@ -203,7 +201,10 @@ def drawSettings(options: list[dict] | tuple[dict], selectedIdx: int) -> int:
             if option.get("scoreMultiplier")
             else ""
         )
-        optionText = f"{option["label"].ljust(30)} {valueDisplay}"
+        if option["type"] == "action":
+            optionText = option["label"]
+        else:
+            optionText = f"{option["label"].ljust(30)} {valueDisplay}"
         frame.append(
             _formattedSelectedOption(optionText) + f"{descDisplay} {scoreMultDisplay}"
             if i == selectedIdx
