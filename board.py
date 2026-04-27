@@ -18,6 +18,8 @@ class Board:
         self.selectedPos = (0, 0)
         self.symmetryType = None  # 2 = two-way symmetry; 4 = four-way symmetry
         self.tiles: list[list[_Tile]] = self._intsToTiles(self.tiles)
+        if self.tiles[0]:
+            self._moveSelectedPosUntilValid()
 
     def __getitem__(self, key: list | tuple) -> _Tile:
         if not isinstance(key, list | tuple):
@@ -30,6 +32,37 @@ class Board:
         if not isinstance(other, Board):
             raise TypeError("Both items in comparison must be of type 'Board'.")
         return self._tilesToInts(self.tiles) == other._tilesToInts(other.tiles)
+
+    @property
+    def _numAvailableTiles(self) -> int:
+        return self.size**2 - sum(
+            row.count(-1) for row in self._tilesToInts(self.tiles)
+        )
+
+    @property
+    def _areAllTilesAccessible(self) -> bool:
+        accessibleTiles = []
+        randomPos = self.getRandomPos()
+
+        def checkAdjacentTiles(tilePos: tuple):
+            try:
+                if (
+                    tilePos[0] < 0
+                    or tilePos[1] < 0
+                    or self[tilePos].value == -1
+                    or tilePos in accessibleTiles
+                ):
+                    raise Exception
+            except:
+                return
+            accessibleTiles.append(tilePos)
+            for posMoves in [[-1, 0], [0, 1], [1, 0], [0, -1]]:
+                newPos = (tilePos[0] + posMoves[0], tilePos[1] + posMoves[1])
+                checkAdjacentTiles(newPos)
+
+        checkAdjacentTiles(randomPos)
+
+        return len(accessibleTiles) == self._numAvailableTiles
 
     def _intsToTiles(self, tiles: list[list[int | _Tile]]) -> list[list[_Tile]]:
         return [[_Tile(x) if isinstance(x, int) else x for x in row] for row in tiles]
@@ -51,6 +84,10 @@ class Board:
                 coords.append((newI, newJ))
                 currI, currJ = newI, newJ
         return coords
+
+    def _moveSelectedPosUntilValid(self):
+        while self[self.selectedPos].value == -1:
+            self.selectedPos = tuple(map(lambda n: n + 1, self.selectedPos))
 
     def flipSelectedTile(self):
         self[self.selectedPos].flip()
@@ -174,6 +211,36 @@ class Board:
                 mutationCount -= 1
 
         return newBoard
+
+    def addObstacles(self):
+        originalTiles = deepcopy(self.tiles)
+        numObstPerQuadr = None
+
+        match self.size:
+            case 4:
+                numObstPerQuadr = 1
+            case 6:
+                numObstPerQuadr = randint(2, 3)
+            case 8:
+                numObstPerQuadr = randint(3, 5)
+            case 10:
+                numObstPerQuadr = randint(4, 6)
+
+        while True:
+            newTiles = deepcopy(originalTiles)
+            obstPosQuadr = []
+            while len(obstPosQuadr) < numObstPerQuadr:
+                randomQuadrPos = tuple(map(lambda n: n // 2, self.getRandomPos()))
+                if randomQuadrPos not in obstPosQuadr:
+                    obstPosQuadr.append(randomQuadrPos)
+
+            for position in obstPosQuadr:
+                for symI, symJ in self._getSymmetricCoords(position[0], position[1]):
+                    newTiles[symI][symJ] = _Tile(-1)
+
+            self.tiles = newTiles
+            if self._areAllTilesAccessible:
+                break
 
 
 @dataclass
