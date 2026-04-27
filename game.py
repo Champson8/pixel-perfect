@@ -217,6 +217,8 @@ class Round:
 
         self.targetBoard = Board(self.settings.boardSize, id="target")
         self.targetBoard.generateBase(self.boardConfig["initialState"])
+        if self.settings.obstacles:
+            self.targetBoard.addObstacles()
 
         self.playerBoard = self.targetBoard.toMutated(
             True,
