@@ -56,9 +56,18 @@ class GameSettings:
             "label": "Tiempo Límite",
             "type": "time",
             "min": 0,
-            "max": 60,
+            "max": 30,
             "step": 10,
             "newlineAfter": True,
+        },
+    )
+    obstacles: bool = field(
+        default=False,
+        metadata={
+            "label": "Obstáculos",
+            "description": "Añade obstáculos en forma de celdas al tablero.",
+            "type": "bool",
+            "scoreMultiplier": 1.1,
         },
     )
     hideTargetAfter: int = field(
@@ -73,22 +82,13 @@ class GameSettings:
             "scoreMultiplier": 1.2,
         },
     )
-    suddenDeath: bool = field(
+    inverseControls: bool = field(
         default=False,
         metadata={
-            "label": "Muerte Súbita",
-            "description": "Finaliza la ronda si cometes un error.",
+            "label": "Invertir Controles",
+            "description": "Invierte los controles de movimiento.",
             "type": "bool",
-            "scoreMultiplier": 1.5,
-        },
-    )
-    obstacles: bool = field(
-        default=False,
-        metadata={
-            "label": "Obstáculos",
-            "description": "Añade obstáculos en forma de celdas al tablero.",
-            "type": "bool",
-            "scoreMultiplier": 1.1,
+            "scoreMultiplier": 1.3,
         },
     )
     chaosFlipping: bool = field(
@@ -98,6 +98,15 @@ class GameSettings:
             "description": "Cambia celdas aleatorias periódicamente.",
             "type": "bool",
             "scoreMultiplier": 1.4,
+        },
+    )
+    suddenDeath: bool = field(
+        default=False,
+        metadata={
+            "label": "Muerte Súbita",
+            "description": "Finaliza la ronda si cometes un error.",
+            "type": "bool",
+            "scoreMultiplier": 1.5,
             "newlineAfter": True,
         },
     )
