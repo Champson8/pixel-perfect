@@ -168,7 +168,10 @@ class Round:
         self.hideTargetBoard: bool = False
 
         self.isOver: bool = False
-        self.won: bool = False
+
+    @property
+    def won(self) -> bool:
+        return self.playerBoard == self.targetBoard
 
     def _setBoardConfig(self):
         difficulty = (self.roundNumber - 1) / (self.settings.totalRounds - 1)
@@ -237,9 +240,6 @@ class Round:
                         self.isOver = self.didFatalMistake = True
                 return True
         return False
-
-    def _checkWin(self) -> bool:
-        return self.playerBoard == self.targetBoard
 
     def _getBoardOverrides(self, style: str, tile: str | tuple) -> dict:
         overrides = {}
@@ -362,7 +362,6 @@ class Round:
             try:
                 inputOutcome = self.player.handleInput()
                 needsRedraw = self._handleInputOutcome(inputOutcome)
-                self.won = self._checkWin()
             except Empty:
                 pass
 
