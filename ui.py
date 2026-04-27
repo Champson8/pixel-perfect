@@ -27,7 +27,10 @@ _BORDER_CHARS = {
         "vertical": "║",
     },
 }
-_TILE_CHARS = {"upper": {0: "┌─┐", 1: "▗▄▖"}, "lower": {0: "└─┘", 1: "▝▀▘"}}
+_TILE_CHARS = {
+    "upper": {-1: "╔╦╗", 0: "┌─┐", 1: "▗▄▖"},
+    "lower": {-1: "╚╩╝", 0: "└─┘", 1: "▝▀▘"},
+}
 _EXIT_CONTROLS = "\n* ESC para regresar/salir"
 _COLORAMA_CODES = [*vars(Back).values(), *vars(Fore).values()]
 
@@ -55,6 +58,8 @@ def _formattedTile(
     board: Board, tileValue: int, tilePos: list | tuple, getter, overrides: dict
 ) -> str:
     tileStr = getter(tileValue)
+    if tileValue == -1:
+        tileStr = Fore.BLUE + tileStr + Fore.RESET
     if tuple(tilePos) in overrides:
         style = overrides[tuple(tilePos)]
         if style == "RED":
@@ -65,7 +70,7 @@ def _formattedTile(
             tileStr = "   "
         elif style == "NONE":
             pass
-    elif board.isInteractable and list(tilePos) == board.selectedPos:
+    elif board.isInteractable and tuple(tilePos) == board.selectedPos:
         tileStr = Back.BLUE + getter(tileValue) + Back.RESET
     return tileStr
 
@@ -262,12 +267,13 @@ def drawBoards(
         ValueError: If overrides' keys are not all of type 'tuple' or not all of type 'str'.
     """
     globalOverrides = True
-    if all(isinstance(key, str) for key in overrides.keys()):
-        globalOverrides = False
-    elif not any(isinstance(key, tuple) for key in overrides.keys()):
-        raise ValueError(
-            "'overrides' keys must all be of type 'tuple' or all of type 'str'."
-        )
+    if overrides:
+        if all(isinstance(key, str) for key in overrides.keys()):
+            globalOverrides = False
+        elif not any(isinstance(key, tuple) for key in overrides.keys()):
+            raise ValueError(
+                "'overrides' keys must all be of type 'tuple' or all of type 'str'."
+            )
     getBoardOverrides = lambda board: (
         overrides if globalOverrides else overrides.get(board.id)
     )
