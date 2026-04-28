@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from json import load, dump, JSONDecodeError
+from pathlib import Path
 from queue import Empty
 from random import randint
 from time import perf_counter, sleep
@@ -7,7 +9,12 @@ from board import Board
 from player import Player
 from data import GameSettings, StatsTracker
 from enums import GameState, InitialBoardState
-from utils import getLatestAction, clearActionQueue
+from utils import (
+    getLatestAction,
+    clearActionQueue,
+    pauseActionListener,
+    unpauseActionListener,
+)
 
 
 class GameManager:
@@ -15,6 +22,7 @@ class GameManager:
         self.state: GameState = GameState.TITLE
         self.settings = GameSettings()
         self.stats = StatsTracker()
+        self.highlightLeaderboardIdx: int = None
 
     def run(self):
         ui.hideCursor()
@@ -29,13 +37,15 @@ class GameManager:
                     GameState.SETTINGS: self.handleSettings,
                     GameState.PLAYING: self.startGame,
                     GameState.OVER: self.handleGameOver,
-                    GameState.LEADERBOARD: lambda: None,
+                    GameState.LEADERBOARD: self.handleLeaderboard,
                 }.get(self.state)()
 
     def handleTitle(self):
         options = ["Jugar", "Leaderboard", "Información"]
         numOptions = len(options)
         selected = 0
+
+        self.highlightLeaderboardIdx = None
 
         while True:
             ui.drawMenu("Pixel Perfect", options, selected)
@@ -142,9 +152,91 @@ class GameManager:
 
         action = getLatestAction()
         if action == "ENTER":
+            pauseActionListener()
+            ui.showCursor()
+
+            playerName = ""
+            while not (
+                len(playerName) == 3
+                and playerName.isalnum()
+                and not playerName.isdigit()
+            ):
+                ui.clearConsole()
+                ui.drawGameOver("resultados", gameStatsSummary, False)
+                playerName = input("\n Identificador (3 caracteres): ")
+            playerName = playerName.upper()
+
+            unpauseActionListener()
+            ui.hideCursor()
+
+            playerData = self.getFormattedPlayerData(playerName)
+            playerRankIdx = self.saveResults(playerData)
+            self.highlightLeaderboardIdx = playerRankIdx
+
             self.state = GameState.LEADERBOARD
         elif action == "ESCAPE":
             self.state = GameState.TITLE
+
+    def handleLeaderboard(self):
+        lbData, _ = self.getLeaderboardData()
+
+        ui.drawLeaderboard(lbData, self.highlightLeaderboardIdx)
+
+        action = getLatestAction()
+        if action == "ESCAPE":
+            self.state = GameState.TITLE
+
+    def getLeaderboardData(self) -> tuple[list[dict], Path]:
+        lbPath = Path("leaderboard.json")
+
+        if lbPath.exists():
+            try:
+                with open(lbPath.resolve()) as file:
+                    lbData = load(file)
+            except JSONDecodeError:
+                lbData = []
+        else:
+            lbData = []
+
+        return lbData, lbPath
+
+    def saveResults(self, playerData: dict) -> int:
+        lbData, lbPath = self.getLeaderboardData()
+
+        lbData.append(playerData)
+        lbData.sort(key=lambda x: int(x.get("Puntaje", 0)), reverse=True)
+        lbData = lbData[:20]
+
+        with open(lbPath.resolve(), "w") as f:
+            dump(lbData, f, indent=4)
+
+        return lbData.index(playerData)
+
+    def getFormattedPlayerData(self, playerName: str) -> dict:
+        MODE_CODES = {
+            "obstacles": "OB",
+            "hideTargetAfter": "OP",
+            "inverseControls": "IC",
+            "chaosFlipping": "CC",
+            "suddenDeath": "MS",
+        }
+        data = {
+            "Jugador": playerName,
+            "Puntaje": str(self.stats.score),
+            "Rondas": str(self.settings.totalRounds),
+            "Tiempo": f"{round(self.stats.timeElapsed, 2)}s",
+            "Movimientos": str(self.stats.totalMoves),
+            "Precision": f"{round(self.stats.accuracy, 2)}%",
+        }
+        modes = []
+        for mode, code in MODE_CODES.items():
+            if getattr(self.settings, mode):
+                modes.append(code)
+        if modes:
+            data["Modos"] = f"[{'] ['.join(modes)}]"
+        else:
+            data["Modos"] = "N/A"
+        return data
 
 
 @dataclass

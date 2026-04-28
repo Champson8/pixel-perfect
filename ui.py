@@ -295,3 +295,42 @@ def drawBoards(
             _getBoardDrawing(board, centerToWidth, getBoardOverrides(board) or {})
         )
     _write(f"{separator.center(centerToWidth if separator else 0, "⋅")}\n".join(frame))
+
+
+def drawLeaderboard(lbData: list[dict], highlightRowIdx: int = None):
+    clearConsole()
+
+    if lbData:
+        headerRowCols = [" LUGAR"]
+        for key in lbData[0].keys():
+            headerRowCols.append(key.upper())
+        headerRow = " | ".join(headerRowCols) + " "
+
+        longestRowWidth = 0
+        frame = [headerRow, "─"]
+        for i, entry in enumerate(lbData):
+            rank = str(i + 1).center(5)
+            name = entry["Jugador"].center(7)
+            score = entry["Puntaje"].rjust(7)
+            rounds = entry["Rondas"].center(6)
+            time = entry["Tiempo"].rjust(6)
+            moves = entry["Movimientos"].center(11)
+            accuracy = entry["Precision"].rjust(9)
+            modes = entry["Modos"]
+
+            rowText = f" {rank} | {name} | {score} | {rounds} | {time} | {moves} | {accuracy} | {modes} "
+            if len(rowText) > longestRowWidth:
+                longestRowWidth = len(rowText)
+            if i == highlightRowIdx:
+                rowText = Fore.YELLOW + rowText + Fore.RESET
+
+            frame.append(rowText)
+
+        frame[1] *= longestRowWidth
+        _drawTitle("leaderboard", longestRowWidth)
+        _write(frame)
+    else:
+        width = _drawTitle("leaderboard")
+        _write("No hay resultados guardados.".center(width))
+
+    _write(_EXIT_CONTROLS)
