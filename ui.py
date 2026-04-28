@@ -246,11 +246,12 @@ def drawStatsSummary(stats: dict[str, str | float], centerToWidth: int = 0):
     _write(frame)
 
 
-def drawGameOver(title: str, stats: dict[str, str | float]):
+def drawGameOver(title: str, stats: dict[str, str | float], showOptions: bool = True):
     width = _drawTitle(title)
     drawStatsSummary(stats, width)
-    _write("\n" + _formattedSelectedOption("Guardar Resultados"))
-    _write(_EXIT_CONTROLS)
+    if showOptions:
+        _write("\n" + _formattedSelectedOption("Guardar Resultados"))
+        _write(_EXIT_CONTROLS)
 
 
 def drawBoards(
