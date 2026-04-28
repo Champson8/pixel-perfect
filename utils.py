@@ -1,10 +1,11 @@
 from dataclasses import field
 from msvcrt import getch, kbhit
 from queue import Queue, Empty
-from threading import Thread
+from threading import Thread, Event
 
 
 _actionQueue = Queue()
+_runActionListenerFlag = Event()
 
 
 def _getUserAction() -> str:
@@ -31,12 +32,18 @@ def _getUserAction() -> str:
 
 def _globalActionListener():
     while True:
+        _runActionListenerFlag.wait()
         if kbhit():
             action = _getUserAction()
             _actionQueue.put(action)
 
 
-Thread(target=_globalActionListener, daemon=True).start()
+def pauseActionListener():
+    _runActionListenerFlag.clear()
+
+
+def unpauseActionListener():
+    _runActionListenerFlag.set()
 
 
 def getLatestAction(timeout: float | None = None) -> str:
@@ -53,3 +60,7 @@ def clearActionQueue():
 
 def defaultMutable(value):
     return field(default_factory=lambda: value)
+
+
+Thread(target=_globalActionListener, daemon=True).start()
+unpauseActionListener()
