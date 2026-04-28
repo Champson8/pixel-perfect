@@ -85,7 +85,7 @@ class GameSettings:
     inverseControls: bool = field(
         default=False,
         metadata={
-            "label": "Invertir Controles",
+            "label": "Controles Invertidos",
             "description": "Invierte los controles de movimiento.",
             "type": "bool",
             "scoreMultiplier": 1.3,
