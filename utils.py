@@ -1,10 +1,10 @@
 from dataclasses import field
-from msvcrt import getch
+from msvcrt import getch, kbhit
 from queue import Queue, Empty
 from threading import Thread
 
 
-actionQueue = Queue()
+_actionQueue = Queue()
 
 
 def _getUserAction() -> str:
@@ -31,21 +31,22 @@ def _getUserAction() -> str:
 
 def _globalActionListener():
     while True:
-        action = _getUserAction()
-        actionQueue.put(action)
+        if kbhit():
+            action = _getUserAction()
+            _actionQueue.put(action)
 
 
 Thread(target=_globalActionListener, daemon=True).start()
 
 
 def getLatestAction(timeout: float | None = None) -> str:
-    return actionQueue.get(timeout=timeout)
+    return _actionQueue.get(timeout=timeout)
 
 
 def clearActionQueue():
-    while not actionQueue.empty():
+    while not _actionQueue.empty():
         try:
-            actionQueue.get_nowait()
+            _actionQueue.get_nowait()
         except Empty:
             break
 
