@@ -9,6 +9,7 @@ if TYPE_CHECKING:
 
 
 _HIDE_CURSOR = "\033[?25l"
+_SHOW_CURSOR = "\033[?25h"
 _BORDER_CHARS = {
     "single": {
         "topLeft": "┏",
@@ -31,7 +32,7 @@ _TILE_CHARS = {
     "upper": {-1: "╔╦╗", 0: "┌─┐", 1: "▗▄▖"},
     "lower": {-1: "╚╩╝", 0: "└─┘", 1: "▝▀▘"},
 }
-_EXIT_CONTROLS = "\n* ESC para regresar/salir"
+_EXIT_CONTROLS = Fore.LIGHTBLACK_EX + "\n* ESC para regresar/salir" + Fore.RESET
 _COLORAMA_CODES = [*vars(Back).values(), *vars(Fore).values()]
 
 
@@ -43,11 +44,11 @@ def _write(lines: str | list[str] | tuple[str], newline: bool = True):
         stdout.write("\n")
 
 
-def _drawTitle(title: str) -> int:
-    padding = 44 if len(title) % 2 == 0 else 45
+def _drawTitle(title: str, baseWidth: int = 45) -> int:
+    padding = baseWidth if len(title) % 2 == 1 else baseWidth - 1
     frame = [
         "▁" * padding,
-        f" {title.upper()} ".center(padding, "═"),
+        Fore.GREEN + f" {title.upper()} ".center(padding, "═") + Fore.RESET,
         "▔" * padding,
     ]
     _write(frame)
@@ -140,6 +141,10 @@ def hideCursor():
     _write(_HIDE_CURSOR)
 
 
+def showCursor():
+    _write(_SHOW_CURSOR)
+
+
 def drawMenu(title: str, options: list[str] | tuple[str], selectedIdx: int) -> int:
     clearConsole()
     width = _drawTitle(title)
@@ -214,7 +219,12 @@ def drawSettings(options: list[dict] | tuple[dict], selectedIdx: int) -> int:
             frame.append("")
 
     _write(frame)
-    _write(_EXIT_CONTROLS + ", A/S o ←/→ para configurar opción")
+    _write(
+        _EXIT_CONTROLS
+        + Fore.LIGHTBLACK_EX
+        + ", A/S o ←/→ para configurar opción"
+        + Fore.RESET
+    )
     return width
 
 
