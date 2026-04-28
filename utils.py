@@ -4,6 +4,7 @@ from queue import Queue, Empty
 from threading import Thread, Event
 
 
+_bypassKbhit = True
 _actionQueue = Queue()
 _runActionListenerFlag = Event()
 
@@ -33,7 +34,7 @@ def _getUserAction() -> str:
 def _globalActionListener():
     while True:
         _runActionListenerFlag.wait()
-        if kbhit():
+        if _bypassKbhit or kbhit():
             action = _getUserAction()
             _actionQueue.put(action)
 
@@ -44,6 +45,11 @@ def pauseActionListener():
 
 def unpauseActionListener():
     _runActionListenerFlag.set()
+
+
+def setKbhitBypass(boolean: bool):
+    global _bypassKbhit
+    _bypassKbhit = boolean
 
 
 def getLatestAction(timeout: float | None = None) -> str:

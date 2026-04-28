@@ -14,6 +14,7 @@ from utils import (
     clearActionQueue,
     pauseActionListener,
     unpauseActionListener,
+    setKbhitBypass,
 )
 
 
@@ -150,6 +151,7 @@ class GameManager:
         ui.clearConsole()
         ui.drawGameOver("resultados", gameStatsSummary)
 
+        setKbhitBypass(False)
         action = getLatestAction()
         if action == "ENTER":
             pauseActionListener()
@@ -168,6 +170,7 @@ class GameManager:
 
             unpauseActionListener()
             ui.hideCursor()
+            setKbhitBypass(True)
 
             playerData = self.getFormattedPlayerData(playerName)
             playerRankIdx = self.saveResults(playerData)
