@@ -170,7 +170,6 @@ class GameManager:
 
             unpauseActionListener()
             ui.hideCursor()
-            setKbhitBypass(True)
 
             playerData = self.getFormattedPlayerData(playerName)
             playerRankIdx = self.saveResults(playerData)
@@ -179,6 +178,7 @@ class GameManager:
             self.state = GameState.LEADERBOARD
         elif action == "ESCAPE":
             self.state = GameState.TITLE
+        setKbhitBypass(True)
 
     def handleLeaderboard(self):
         lbData, _ = self.getLeaderboardData()
