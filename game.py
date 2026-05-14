@@ -21,9 +21,6 @@ from utils import (
 class GameManager:
     def __init__(self):
         self.state: GameState = GameState.TITLE
-        self.settings = GameSettings()
-        self.stats = StatsTracker()
-        self.highlightLeaderboardIdx: int = None
 
     def run(self):
         ui.hideCursor()
@@ -41,12 +38,17 @@ class GameManager:
                     GameState.LEADERBOARD: self.handleLeaderboard,
                 }.get(self.state)()
 
+    def reset(self):
+        self.settings = GameSettings()
+        self.stats = StatsTracker()
+        self.highlightLeaderboardIdx: int = None
+
     def handleTitle(self):
+        self.reset()
+
         options = ["Jugar", "Leaderboard", "Información"]
         numOptions = len(options)
         selected = 0
-
-        self.highlightLeaderboardIdx = None
 
         while True:
             ui.drawMenu("Pixel Perfect", options, selected)

@@ -1,1 +1,83 @@
-[]
+[
+    {
+        "Jugador": "NEZ",
+        "Puntaje": "15155",
+        "Rondas": "5",
+        "Tiempo": "198.01s",
+        "Movimientos": "458",
+        "Precision": "96.2%",
+        "Modos": "[OB] [OP] [IC] [CC] [MS]"
+    },
+    {
+        "Jugador": "NEZ",
+        "Puntaje": "13051",
+        "Rondas": "5",
+        "Tiempo": "92.04s",
+        "Movimientos": "259",
+        "Precision": "95.88%",
+        "Modos": "[OB] [OP] [IC] [CC] [MS]"
+    },
+    {
+        "Jugador": "NEZ",
+        "Puntaje": "12374",
+        "Rondas": "5",
+        "Tiempo": "94.14s",
+        "Movimientos": "259",
+        "Precision": "91.51%",
+        "Modos": "[OB] [OP] [IC] [CC] [MS]"
+    },
+    {
+        "Jugador": "MAN",
+        "Puntaje": "9518",
+        "Rondas": "5",
+        "Tiempo": "135.62s",
+        "Movimientos": "285",
+        "Precision": "96.04%",
+        "Modos": "[OB] [CC] [MS]"
+    },
+    {
+        "Jugador": "MAN",
+        "Puntaje": "9193",
+        "Rondas": "5",
+        "Tiempo": "52.79s",
+        "Movimientos": "145",
+        "Precision": "97.83%",
+        "Modos": "[OB] [OP] [IC] [CC] [MS]"
+    },
+    {
+        "Jugador": "MAN",
+        "Puntaje": "9019",
+        "Rondas": "5",
+        "Tiempo": "60.23s",
+        "Movimientos": "190",
+        "Precision": "100.0%",
+        "Modos": "[OB] [OP] [IC] [CC] [MS]"
+    },
+    {
+        "Jugador": "MAN",
+        "Puntaje": "7085",
+        "Rondas": "5",
+        "Tiempo": "21.55s",
+        "Movimientos": "61",
+        "Precision": "100.0%",
+        "Modos": "[MS]"
+    },
+    {
+        "Jugador": "NEZ",
+        "Puntaje": "5175",
+        "Rondas": "5",
+        "Tiempo": "158.6s",
+        "Movimientos": "514",
+        "Precision": "92.74%",
+        "Modos": "[OB] [CC]"
+    },
+    {
+        "Jugador": "LOL",
+        "Puntaje": "0",
+        "Rondas": "3",
+        "Tiempo": "53.42s",
+        "Movimientos": "59",
+        "Precision": "90.0%",
+        "Modos": "[MS]"
+    }
+]
