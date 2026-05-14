@@ -303,7 +303,10 @@ def drawLeaderboard(lbData: list[dict], highlightRowIdx: int = None):
     if lbData:
         headerRowCols = [" LUGAR"]
         for key in lbData[0].keys():
-            headerRowCols.append(key.upper())
+            colName = key.upper()
+            if len(key) == 6:
+                colName = f" {colName} "
+            headerRowCols.append(colName)
         headerRow = " | ".join(headerRowCols) + " "
 
         longestRowWidth = 0
@@ -312,8 +315,8 @@ def drawLeaderboard(lbData: list[dict], highlightRowIdx: int = None):
             rank = str(i + 1).center(5)
             name = entry["Jugador"].center(7)
             score = entry["Puntaje"].rjust(7)
-            rounds = entry["Rondas"].center(6)
-            time = entry["Tiempo"].rjust(6)
+            rounds = entry["Rondas"].center(8)
+            time = entry["Tiempo"].rjust(8)
             moves = entry["Movimientos"].center(11)
             accuracy = entry["Precision"].rjust(9)
             modes = entry["Modos"]
