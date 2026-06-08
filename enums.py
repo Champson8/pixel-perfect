@@ -15,3 +15,10 @@ class InitialBoardState(StrEnum):
     BLANK = auto()
     PATTERN = auto()
     RANDOM = auto()
+
+
+class SoundEffect(StrEnum):
+    MOVE = auto()
+    INTERACT = auto()
+    GAME = auto()
+    END = auto()
