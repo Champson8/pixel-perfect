@@ -22,6 +22,8 @@ class SoundManager:
         for sound, volume in volumes.items():
             self.sounds[sound].set_volume(volume)
 
-    def play(self, sfx: SoundEffect):
+    def play(self, sfx: SoundEffect, loops: int = 0) -> mixer.Sound | None:
         if sfx in self.sounds:
-            self.sounds[sfx].play()
+            sound = self.sounds[sfx]
+            sound.play(loops=loops)
+            return sound
