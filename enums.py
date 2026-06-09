@@ -1,3 +1,12 @@
+"""
+Module to store general enums.
+
+This module stores enums vital to the game and board states as well as sound effects.
+
+Contributors:
+    - Herrera Armenta Emmanuel
+"""
+
 from enum import StrEnum, auto
 
 

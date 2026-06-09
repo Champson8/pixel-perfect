@@ -1,3 +1,14 @@
+"""
+Module to handle display and game visuals.
+
+This module handles clearing and printing/writing of text and visuals to the terminal, from game menus to the game loop visuals.
+
+Contributors:
+    - Baena Zamorano Leyla Elizabeth (Menu drawing, HUD drawing, stats drawing)
+    - Herrera Armenta Emmanuel (Board drawing, utils, refactoring, testing)
+    - Sotelo Núñez Edgardo (Leaderboard drawing)
+"""
+
 from __future__ import annotations
 from math import ceil
 from sys import stdout

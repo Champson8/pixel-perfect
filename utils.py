@@ -1,8 +1,16 @@
+"""
+Module to define general utility functions.
+
+This module defines functions vital to the user navigation and interaction process.
+
+Contributors:
+    - Herrera Armenta Emmanuel
+"""
+
 from dataclasses import field
 from msvcrt import getch, kbhit
 from queue import Queue, Empty
 from threading import Thread, Event
-
 
 _bypassKbhit = True
 _actionQueue = Queue()

@@ -1,3 +1,7 @@
+"""
+Module to initiate game process.
+"""
+
 from game import GameManager
 
 

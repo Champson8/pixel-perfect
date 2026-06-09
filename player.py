@@ -1,3 +1,12 @@
+"""
+Module to handle in-game-loop player interaction.
+
+This module handles player input and movement once inside a game loop.
+
+Contributors:
+    - Herrera Armenta Emmanuel
+"""
+
 from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass

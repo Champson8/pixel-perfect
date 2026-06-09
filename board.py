@@ -1,3 +1,13 @@
+"""
+Module to handle board and tile logic.
+
+This module defines and handles the internal logic of the 'boards', composed of tiles, present in the game.
+This includes their generation, modification, and navigation.
+
+Contributors:
+    - Herrera Armenta Emmanuel
+"""
+
 from copy import deepcopy
 from dataclasses import dataclass
 from random import random, randint, choice

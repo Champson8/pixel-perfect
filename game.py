@@ -1,3 +1,15 @@
+"""
+Module to manage the game state.
+
+This module handles the game menus, their display and navigation, as well as
+the core functionality of each game loop and its rounds, all with the help of the other modules present.
+
+Contributors:
+    - Baena Zamorano Leyla Elizabeth (Sound effects)
+    - Herrera Armenta Emmanuel (Menus, rounds, refactoring, testing)
+    - Sotelo Núñez Edgardo (Settings menu, leaderboard)
+"""
+
 from dataclasses import dataclass
 from json import load, dump, JSONDecodeError
 from pathlib import Path

@@ -1,3 +1,14 @@
+"""
+Module to define game statisics and user-accessible game settings.
+
+This module defines each possible setting to be used in a game loop, their associated metadata, and
+aids with the tracking and calculating of game statistics.
+
+Contributors:
+    - Herrera Armenta Emmanuel (Settings metadata, stats tracker)
+    - Sotelo Núñez Edgardo (Settings design)
+"""
+
 from dataclasses import dataclass, field, fields
 
 

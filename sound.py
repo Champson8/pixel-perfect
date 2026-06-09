@@ -1,3 +1,13 @@
+"""
+Module to manage sound effects.
+
+This module defines and handles the sound effects used in the game.
+
+Contributors:
+    - Baena Zamorano Leyla Elizabeth (SFX compiling, initial design)
+    - Herrera Armenta Emmanuel (Refactoring)
+"""
+
 from enums import SoundEffect
 from pygame import mixer
 
