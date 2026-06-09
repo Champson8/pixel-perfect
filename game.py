@@ -6,9 +6,10 @@ from random import randint
 from time import perf_counter, sleep
 import ui
 from board import Board
-from player import Player
 from data import GameSettings, StatsTracker
-from enums import GameState, InitialBoardState
+from player import Player
+from sound import SoundManager
+from enums import GameState, InitialBoardState, SoundEffect
 from utils import (
     getLatestAction,
     clearActionQueue,
@@ -21,6 +22,8 @@ from utils import (
 class GameManager:
     def __init__(self):
         self.state: GameState = GameState.TITLE
+        self.sounds = SoundManager()
+        self.gameMusic = None
 
     def run(self):
         ui.hideCursor()
@@ -58,9 +61,12 @@ class GameManager:
             match action:
                 case "UP":
                     selected = (selected - 1) % numOptions
+                    self.sounds.play(SoundEffect.MOVE)
                 case "DOWN":
                     selected = (selected + 1) % numOptions
+                    self.sounds.play(SoundEffect.MOVE)
                 case "ENTER":
+                    self.sounds.play(SoundEffect.INTERACT)
                     break
                 case "ESCAPE":
                     self.state = GameState.QUIT
@@ -91,8 +97,10 @@ class GameManager:
             match action:
                 case "UP":
                     selected = (selected - 1) % numOptions
+                    self.sounds.play(SoundEffect.MOVE)
                 case "DOWN":
                     selected = (selected + 1) % numOptions
+                    self.sounds.play(SoundEffect.MOVE)
                 case "LEFT" | "RIGHT":
                     if currentOption["type"] in ["int", "time"]:
                         step = currentOption["step"]
@@ -106,10 +114,13 @@ class GameManager:
                     elif currentOption["type"] == "bool":
                         currentOption["value"] = action == "RIGHT"
                     self.enforceSettingDependencies(options, currentOption)
+                    if currentOption["id"] != "start":
+                        self.sounds.play(SoundEffect.MOVE)
                 case "ENTER":
                     if currentOption["id"] == "start":
                         self.saveSettings(options)
                         self.state = GameState.PLAYING
+                        self.sounds.play(SoundEffect.INTERACT)
                         return
                 case "ESCAPE":
                     self.state = GameState.TITLE
@@ -134,8 +145,9 @@ class GameManager:
                 setattr(self.settings, option["id"], option["value"])
 
     def startGame(self):
+        self.gameMusic = self.sounds.play(SoundEffect.GAME, -1)
         for i in range(1, self.settings.totalRounds + 1):
-            round = Round(i, self.settings)
+            round = Round(i, self.settings, self.sounds)
             round.start()
             self.stats.totalWonRounds += int(round.won)
             self.stats.timeElapsed += round.timeElapsed
@@ -150,6 +162,9 @@ class GameManager:
         self.stats.calculateScore(self.settings)
         gameStatsSummary = self.stats.getFormattedStats()
 
+        self.gameMusic.stop()
+        self.sounds.play(SoundEffect.END)
+
         ui.clearConsole()
         ui.drawGameOver("resultados", gameStatsSummary)
 
@@ -157,7 +172,9 @@ class GameManager:
         action = getLatestAction()
         if action == "ENTER":
             pauseActionListener()
+
             ui.showCursor()
+            self.sounds.play(SoundEffect.INTERACT)
 
             playerName = ""
             while not (
@@ -248,6 +265,7 @@ class GameManager:
 class Round:
     roundNumber: int
     settings: GameSettings
+    sounds: SoundManager
 
     def __post_init__(self):
         self.targetBoard: Board = None
@@ -330,6 +348,7 @@ class Round:
         if outcome is not None:
             if outcome["moved"]:
                 self.moves += 1
+                self.sounds.play(SoundEffect.MOVE)
                 return True
             elif outcome["flipped"]:
                 self.flips += 1
@@ -338,6 +357,7 @@ class Round:
                     self.mistakes += 1
                     if self.settings.suddenDeath:
                         self.isOver = self.didFatalMistake = True
+                self.sounds.play(SoundEffect.INTERACT)
                 return True
         return False
 
