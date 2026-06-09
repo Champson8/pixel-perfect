@@ -13,8 +13,14 @@ class SoundManager:
             SoundEffect.END: mixer.Sound("sounds/end.wav"),
         }
 
-        for sound in self.sounds.values():
-            sound.set_volume(0.75)
+        volumes = {
+            SoundEffect.MOVE: 0.35,
+            SoundEffect.INTERACT: 0.35,
+            SoundEffect.GAME: 1,
+            SoundEffect.END: 0.75,
+        }
+        for sound, volume in volumes.items():
+            self.sounds[sound].set_volume(volume)
 
     def play(self, sfx: SoundEffect):
         if sfx in self.sounds:
