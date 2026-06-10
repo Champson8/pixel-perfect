@@ -58,6 +58,7 @@ class GameManager:
         self.stats = StatsTracker()
         self.highlightLeaderboardIdx: int = None
 
+    # Main menu
     def handleTitle(self):
         self.reset()
 
@@ -87,6 +88,7 @@ class GameManager:
         states = [GameState.SETTINGS, GameState.LEADERBOARD, GameState.ABOUT]
         self.state = states[selected]
 
+    # "Información" menu
     def handleAbout(self):
         ui.drawAbout()
         while True:
@@ -95,6 +97,7 @@ class GameManager:
                 break
         self.state = GameState.TITLE
 
+    # "Configuración" menu
     def handleSettings(self):
         options = self.settings._generateOptionsList()
         numOptions = len(options)
@@ -106,6 +109,8 @@ class GameManager:
             currentOption = options[selected]
             action = getLatestAction()
 
+            # Menu navigation is done with UP and DOWN actions,
+            # while per-setting toggling/adjusting is done with LEFT and RIGHT actions
             match action:
                 case "UP":
                     selected = (selected - 1) % numOptions
@@ -114,6 +119,8 @@ class GameManager:
                     selected = (selected + 1) % numOptions
                     self.sounds.play(SoundEffect.MOVE)
                 case "LEFT" | "RIGHT":
+                    # For number-based settings, cycle through each possible value
+                    # according to their range and step
                     if currentOption["type"] in ["int", "time"]:
                         step = currentOption["step"]
                         currentOption["value"] = (
@@ -123,8 +130,10 @@ class GameManager:
                                 currentOption["value"] + step, currentOption["max"]
                             )
                         )
+                    # For bool-based settings, simply toggle on or off
                     elif currentOption["type"] == "bool":
                         currentOption["value"] = action == "RIGHT"
+                    # Make sure no setting values conflict with one another
                     self.enforceSettingDependencies(options, currentOption)
                     if currentOption["id"] != "start":
                         self.sounds.play(SoundEffect.MOVE)
@@ -139,12 +148,20 @@ class GameManager:
                     return
 
     def enforceSettingDependencies(self, options: list | tuple, changedOption: dict):
+        """Adjusts necessary game settings to avoid potential conflicts in the game loop.
+
+        Args:
+            options (list | tuple): List of options and their metadata.
+            changedOption (dict): Last-changed option and its metadata.
+        """
         match changedOption["id"]:
+            # If timeLimit was just disabled (set to 0), disable hideTargetAfter if enabled
             case "timeLimit":
                 if changedOption["value"] == 0:
                     for option in options:
                         if option["id"] == "hideTargetAfter" and option["value"] > 0:
                             option["value"] = 0
+            # If hideTargetAfter was just enabled (set above 0), enable timeLimit and set to 30 if disabled
             case "hideTargetAfter":
                 if changedOption["value"] > 0:
                     for option in options:
@@ -158,6 +175,7 @@ class GameManager:
 
     def startGame(self):
         self.gameMusic = self.sounds.play(SoundEffect.GAME, -1)
+        # Start as many rounds as configured and record their stats
         for i in range(1, self.settings.totalRounds + 1):
             round = Round(i, self.settings, self.sounds)
             round.start()
@@ -169,6 +187,7 @@ class GameManager:
         self.state = GameState.OVER
 
     def handleGameOver(self):
+        # Calculate and store extra game-end statistics
         self.stats.calculateAccuracy()
         self.stats.calculateMPS()
         self.stats.calculateScore(self.settings)
@@ -180,9 +199,11 @@ class GameManager:
         ui.clearConsole()
         ui.drawGameOver("resultados", gameStatsSummary)
 
+        # Disable kbhit() bypass before each user input (i.e. force kbhit() check)
         setKbhitBypass(False)
         action = getLatestAction()
         if action == "ENTER":
+            # Temporarily pause custom user-input listener to allow normal input() usage
             pauseActionListener()
 
             ui.showCursor()
@@ -199,16 +220,19 @@ class GameManager:
                 playerName = input("\n Identificador (3 caracteres): ")
             playerName = playerName.upper()
 
+            # Resume custom user-input listener
             unpauseActionListener()
             ui.hideCursor()
 
             playerData = self.getFormattedPlayerData(playerName)
             playerRankIdx = self.saveResults(playerData)
+            # Set the leaderboard rank to be highlighted
             self.highlightLeaderboardIdx = playerRankIdx
 
             self.state = GameState.LEADERBOARD
         elif action == "ESCAPE":
             self.state = GameState.TITLE
+        # Re-enable kbhit() bypass
         setKbhitBypass(True)
 
     def handleLeaderboard(self):
@@ -220,6 +244,7 @@ class GameManager:
         if action == "ESCAPE":
             self.state = GameState.TITLE
 
+    # Reads the leaderboard.json file
     def getLeaderboardData(self) -> tuple[list[dict], Path]:
         lbPath = Path("leaderboard.json")
 
@@ -234,6 +259,7 @@ class GameManager:
 
         return lbData, lbPath
 
+    # Writes new results to the leaderboard.json file
     def saveResults(self, playerData: dict) -> int:
         lbData, lbPath = self.getLeaderboardData()
 
@@ -301,6 +327,12 @@ class Round:
         return self.playerBoard == self.targetBoard
 
     def _setBoardConfig(self):
+        """Sets the board configuration to be used during its mutation.
+
+        Does so according a 'difficulty' parameter calculated linearly according to the current and total round(s).
+        The configuration includes the initial state of the target board, as well as
+        the mutation settings to be used for the player board.
+        """
         difficulty = (self.roundNumber - 1) / (self.settings.totalRounds - 1)
         mutationsMultiplier = (self.settings.boardSize - 4) // 2 + 1
 
@@ -343,11 +375,15 @@ class Round:
     def _generateBoards(self):
         self._setBoardConfig()
 
+        # Create a new Board instance for the target board with the configuration's initial state
         self.targetBoard = Board(self.settings.boardSize, id="target")
         self.targetBoard.generateBase(self.boardConfig["initialState"])
+        # Add obstacles to the target board if the game setting is enabled
         if self.settings.obstacles:
             self.targetBoard.addObstacles()
 
+        # Create a new Board from the target board, mutated using the established configuration,
+        # to be used as the player board
         self.playerBoard = self.targetBoard.toMutated(
             True,
             self.boardConfig["mutationsCount"],
@@ -357,6 +393,17 @@ class Round:
         )
 
     def _handleInputOutcome(self, outcome: dict | None) -> bool:
+        """Handles the outcome of the user's interaction with the board, such as keeping count of their moves and flips,
+        playing sound effects, and checking against game-over conditions.
+
+        Args:
+            outcome (dict | None):
+                Types of outcomes that emerged from the user input.
+                Despite the use of plural, only one value out of each key, value pair may be True.
+
+        Returns:
+            bool: Whether an outcome 'happened' due to this user input (i.e. whether the player board has changed).
+        """
         if outcome is not None:
             if outcome["moved"]:
                 self.moves += 1
@@ -365,8 +412,11 @@ class Round:
             elif outcome["flipped"]:
                 self.flips += 1
                 selectedPos = self.playerBoard.selectedPos
+                # If the flipped tile in the player board does not align
+                # with the same tile in the target board, count a mistake
                 if self.playerBoard[selectedPos] != self.targetBoard[selectedPos]:
                     self.mistakes += 1
+                    # If suddenDeath is enabled, mark round as over
                     if self.settings.suddenDeath:
                         self.isOver = self.didFatalMistake = True
                 self.sounds.play(SoundEffect.INTERACT)
@@ -374,6 +424,19 @@ class Round:
         return False
 
     def _getBoardOverrides(self, style: str, tile: str | tuple) -> dict:
+        """Builds a dictionary specifying the style of one or all tiles via their positions in a board.
+
+        Args:
+            style (str):
+                Style that the specified tiles will take. Refer to the ui module's _formattedTile function for possible styles.
+            tile (str | tuple):
+                Tile or tiles to apply the specified style to.
+                May be the string 'selected' for the tile currently selected by the user, or 'all' for all tiles on the board.
+                May be a tuple specifying the (i, j) position of a single tile.
+
+        Returns:
+            dict: Collection of tiles and their specified styles.
+        """
         overrides = {}
         if isinstance(tile, tuple):
             overrides = {tile: style}
@@ -400,6 +463,7 @@ class Round:
             overrides=overrides,
         )
 
+    # Helper function used to mimic a blinking animation
     def _shouldBlinkFrame(self, eventTime: float, secondsBeforeEvent: float) -> bool:
         shouldBlink = False
         if eventTime:
@@ -455,6 +519,8 @@ class Round:
         return stats
 
     def start(self):
+        # Round setup; clear any user inputs waiting to be read, generate the target and player boards, and
+        # set relevant variables associated with time-related events
         clearActionQueue()
         self._generateBoards()
         self.player = Player(self.playerBoard, self.settings.inverseControls)
@@ -474,35 +540,49 @@ class Round:
             needsRedraw = False
             overrides = {}
 
+            # If chaosFlipping is enabled, and enough time has passed since its last activation,
+            # update its timer and flip a random tile in the player board
             if self.settings.chaosFlipping and currentTime - lastChaosTimer >= 3:
                 lastChaosTimer = currentTime
                 chaosFlipTime = currentTime + 3
                 self.playerBoard.flipTile(randomTile)
                 randomTile = self.playerBoard.getRandomPos()
 
+            # Set whether the target board should alert the user whenever it is about to vanish,
+            # since the timer is never updated, it will be hidden for the rest of the round
+            # after its blinking animation is finished
             self.hideTargetBoard = self._shouldBlinkFrame(hideTargetTime, 2)
             doChaosFlipBlink = self._shouldBlinkFrame(chaosFlipTime, 2)
 
+            # Hide target board once necessary (during blinking animation, and afterwards for remainder of the round)
             if self.hideTargetBoard:
                 overrides = {"target": self._getBoardOverrides("HIDDEN", "all")}
+            # Highlight previously-randomly-chosen tile that is about to flip on the next iteration,
+            # in order to alert the user
             if doChaosFlipBlink:
                 overrides = {
                     **overrides,
                     "player": self._getBoardOverrides("GRAY", randomTile),
                 }
 
+            # Attempt to retrieve the user's last input on the player board,
+            # then set needsRedraw to a bool whether the player board actually changed
             try:
                 inputOutcome = self.player.handleInput()
                 needsRedraw = self._handleInputOutcome(inputOutcome)
             except Empty:
                 pass
 
+            # If timeLimit or chaosFlipping is enabled, and
+            # more than 1/10th of a second has passed since the last redraw,
+            # force one and update the timer
             if (
                 self.settings.timeLimit or self.settings.chaosFlipping
             ) and currentTime - lastRedrawTimer >= 0.1:
                 lastRedrawTimer = currentTime
                 needsRedraw = True
 
+            # Update time left for this round, redraw the screen, and check for win condition all only when needed
             if needsRedraw:
                 elapsed = currentTime - startTime
                 timeLeft = max(0, self.settings.timeLimit - elapsed)
