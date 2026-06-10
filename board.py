@@ -43,18 +43,23 @@ class Board:
             raise TypeError("Both items in comparison must be of type 'Board'.")
         return self._tilesToInts(self.tiles) == other._tilesToInts(other.tiles)
 
+    # Number of available tiles in the board (i.e. tiles which are not obstacles)
     @property
     def _numAvailableTiles(self) -> int:
         return self.size**2 - sum(
             row.count(-1) for row in self._tilesToInts(self.tiles)
         )
 
+    # Whether all tiles are naturally accessible (i.e. not blocked off by obstacles)
     @property
     def _areAllTilesAccessible(self) -> bool:
         accessibleTiles = []
+        # Start by selecting a random tile
         randomPos = self.getRandomPos()
 
         def checkAdjacentTiles(tilePos: tuple):
+            # Return if the tile that is currently being checked
+            # is outside the board, is an obstacle, or has already been marked as accessible
             try:
                 if (
                     tilePos[0] < 0
@@ -66,6 +71,7 @@ class Board:
             except:
                 return
             accessibleTiles.append(tilePos)
+            # Subsequently check all the other surrounding tiles in 4 directions
             for posMoves in [[-1, 0], [0, 1], [1, 0], [0, -1]]:
                 newPos = (tilePos[0] + posMoves[0], tilePos[1] + posMoves[1])
                 checkAdjacentTiles(newPos)
@@ -83,6 +89,7 @@ class Board:
             for row in tiles
         ]
 
+    # Get all positions that symmetrically align with a single given tile position
     def _getSymmetricCoords(self, i: int, j: int) -> list[tuple]:
         coords = [(i, j)]
         if self.symmetryType == 2:
@@ -95,6 +102,7 @@ class Board:
                 currI, currJ = newI, newJ
         return coords
 
+    # Automatically move the selected position until it is no longer over an obstacle
     def _moveSelectedPosUntilValid(self):
         while self[self.selectedPos].value == -1:
             self.selectedPos = tuple(map(lambda n: n + 1, self.selectedPos))
@@ -116,9 +124,20 @@ class Board:
         return randomPos
 
     def generateBase(self, initialState: InitialBoardState = InitialBoardState.PATTERN):
+        """Creates and assigns a new tileset to this Board instance.
+
+        Args:
+            initialState (InitialBoardState, optional):
+                The initial state of the board's tileset about to be generated.
+                - InitialBoardState.BLANK results in a tileset filled with zeroes.
+                - InitialBoardState.RANDOM results in a tileset filled randomly with zeroes and ones.
+                - InitialBoardState.PATTERN results in a tileset with a randomly generated symmetrical pattern.\n
+                Defaults to InitialBoardState.PATTERN.
+        """
         if initialState not in InitialBoardState:
             initialState = InitialBoardState.PATTERN
 
+        # Choose random symmetry type
         self.symmetryType = choice([2, 4])
         match initialState:
             case InitialBoardState.BLANK:
@@ -131,6 +150,7 @@ class Board:
                 halfSize = self.size // 2
                 newTiles = [[0] * self.size for _ in range(self.size)]
 
+                # Randomly fill the tiles of a single quadrant, and copy each tile over to its symmetrical neighbors
                 for i in range(halfSize):
                     for j in range(halfSize):
                         if randint(0, 1):
@@ -184,6 +204,7 @@ class Board:
         )
 
         originalMutations = mutationCount
+        # Repeat mutation process until the new, mutated board is different from the original
         while newBoard == self:
             randomCoords = lambda: (
                 randint(0, self.size - 1),
@@ -222,10 +243,12 @@ class Board:
 
         return newBoard
 
+    # Add obstacles to tileset (i.e. tiles that the user cannot move to or interact with)
     def addObstacles(self):
         originalTiles = deepcopy(self.tiles)
         numObstPerQuadr = None
 
+        # Randomly define the number of obstacles to add to each quadrant
         match self.size:
             case 4:
                 numObstPerQuadr = 1
@@ -249,6 +272,7 @@ class Board:
                     newTiles[symI][symJ] = _Tile(-1)
 
             self.tiles = newTiles
+            # Continue loop until it is made sure all tiles are accessible
             if self._areAllTilesAccessible:
                 break
 
