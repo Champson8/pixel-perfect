@@ -122,6 +122,7 @@ class GameSettings:
         },
     )
 
+    # Generate a list of all settings and their metadata to be used as menu options
     def _generateOptionsList(self) -> list[dict]:
         options = []
         for f in fields(self):
@@ -155,11 +156,15 @@ class StatsTracker:
 
     def calculateScore(self, gameSettings: GameSettings):
         multiplier = 1
+        # Add up all active settings' respective multipliers
         for f in fields(gameSettings):
             md = f.metadata
             if md.get("scoreMultiplier") and bool(getattr(gameSettings, f.name)):
                 multiplier += md["scoreMultiplier"] - 1
+        # Calculate bonus according to board size
         boardSizeBonus = 100 * (gameSettings.boardSize - 4) / 2
+        # Calculate score according to number of rounds won and board size,
+        # with mistake, time, and move penalties
         self.score = (
             (self.totalWonRounds * (1000 + boardSizeBonus))
             - (self.totalMistakes * 50)
