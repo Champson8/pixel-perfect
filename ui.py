@@ -69,6 +69,18 @@ def _drawTitle(title: str, baseWidth: int = 45) -> int:
 def _formattedTile(
     board: Board, tileValue: int, tilePos: list | tuple, getter, overrides: dict
 ) -> str:
+    """Get a styled half-tile string according to its position on the board and/or board overrides.
+
+    Args:
+        board (Board): Board instance in which the tile exists.
+        tileValue (int): Value of the tile.
+        tilePos (list | tuple): Position (i, j) of the tile.
+        getter (_type_): Half-tile getter function.
+        overrides (dict): Board overrides specifying each tile and its style.
+
+    Returns:
+        str: Characters that compose the styled half-tile.
+    """
     tileStr = getter(tileValue)
     if tileValue == -1:
         tileStr = Fore.BLUE + tileStr + Fore.RESET
@@ -105,10 +117,10 @@ def _getBoardDrawing(board: Board, centerToWidth: int = 0, overrides: dict = {})
         + border["topRight"]
     ]
 
+    # Add board walls and tiles with their respective styles to the frame
     for i, row in enumerate(board.tiles):
         lines = []
         for getter in getters:
-
             lines.append(
                 [
                     _formattedTile(board, tile.value, (i, j), getter, overrides)
@@ -127,6 +139,7 @@ def _getBoardDrawing(board: Board, centerToWidth: int = 0, overrides: dict = {})
     )
 
     centeredFrame = []
+    # Center the frame that has been offset by invisible ANSI escape codes
     for line in frame:
         totalWidth = centerToWidth - 1
         if totalWidth % 2 == 0:
