@@ -36,6 +36,7 @@ class Player:
         outcome = {"moved": False, "flipped": False}
         sel = self.linkedBoard.selectedPos
         moves = self._getMoves()
+        # Get latest user input with a timeout of 1/10th of a second
         action = getLatestAction(0.1)
 
         if action == "ENTER":
@@ -48,6 +49,7 @@ class Player:
 
         nextIPos = sel[0] + moves[action][0]
         nextJPos = sel[1] + moves[action][1]
+        # Return if the position to move to next is outside the player board
         if (
             nextIPos < 0
             or nextJPos < 0
